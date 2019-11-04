@@ -42,7 +42,7 @@ public class Chess {
         board = board.copy();
 
         // Move the piece from the srcTile to the destTile.
-        board.movePiece(Tile.pos(srcX, srcY), Tile.pos(destX, destY));
+        board.movePiece(new Move(Tile.pos(srcX, srcY), Tile.pos(destX, destY)));
     }
 
     /**

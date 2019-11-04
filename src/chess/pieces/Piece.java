@@ -22,8 +22,7 @@ public abstract class Piece {
     private Tile[] prevTiles; // The previous 6 tiles this piece was on.
     private Board board; // The board this piece is on.
 
-    private double score = -1; // Lazily loaded score.
-    public List<Move> possibleMoves; // Lazily loaded list of possible moves.
+    private List<Move> possibleMoves; // Lazily loaded list of possible moves. ONLY if checked for check.
 
     /**
      * Creates a piece.
@@ -89,7 +88,10 @@ public abstract class Piece {
      */
     public List<Move> getPossibleMoves(boolean checkForCheck) {
 
-        possibleMoves = new ArrayList<>();
+        // Check if cached exists.
+        if (checkForCheck && possibleMoves != null) return possibleMoves;
+
+        ArrayList<Move> output = new ArrayList<>();
         for (Tile tile : getPossibleLocations()) {
 
             // Don't consider this move if the tile is stale.
@@ -100,17 +102,18 @@ public abstract class Piece {
             // If we need to check for check, add only the moves that do not result in a check in the future.
             if (checkForCheck) {
                 Board future = board.copy();
-                future.movePiece(getTile(), tile, false);
+                future.movePiece(new Move(getTile(), tile), false);
                 if (!future.inCheck(isWhite)) {
-                    possibleMoves.add(new Move(this, tile));
+                    output.add(new Move(getTile(), tile));
                 }
             } else {
                 // Otherwise add the move blindly.
-                possibleMoves.add(new Move(this, tile));
+                output.add(new Move(getTile(), tile));
             }
-
         }
-        return possibleMoves;
+
+        if (checkForCheck) possibleMoves = output;
+        return output;
     }
 
     /**
@@ -141,12 +144,12 @@ public abstract class Piece {
     /**
      * Returns whether the tile can move to the given destination tile (based on getPossibleLocations()). Considers check.
      *
-     * @param dest  the destination tile to check for.
+     * @param dest the destination tile to check for.
      * @return whether it can move there or not.
      */
     public boolean isValidMove(Tile dest) {
         for (Move move : getPossibleMoves(true)) {
-            if (move.getTile().equals(dest)) {
+            if (move.getDestination().equals(dest)) {
                 return true;
             }
         }
@@ -158,15 +161,15 @@ public abstract class Piece {
      */
     public double getScore() {
 
-        score = getValue();
+        double score = getValue();
 
         for (Move move : getPossibleMoves(true)) {
-            if (isEmpty(move.getTile())) {
+            if (isEmpty(move.getDestination())) {
                 score += MOVE_VALUE;
-            } else if (containsEnemyPiece(move.getTile())) {
-                score += board.get(move.getTile()).getValue() * ATTACK_VALUE;
-            } else if (containsAllyPiece(move.getTile())) {
-                score += board.get(move.getTile()).getValue() * PROTECT_VALUE;
+            } else if (containsEnemyPiece(move.getDestination())) {
+                score += board.get(move.getDestination()).getValue() * ATTACK_VALUE;
+            } else if (containsAllyPiece(move.getDestination())) {
+                score += board.get(move.getDestination()).getValue() * PROTECT_VALUE;
             }
         }
 
@@ -187,17 +190,16 @@ public abstract class Piece {
     /**
      * Called every time the piece is moved. Can be overridden for further functionality.
      *
-     * @param board   the board this piece moved in.
-     * @param oldTile the tile the piece used to be in.
-     * @param newTile the tile the piece is now in.
+     * @param board the board this piece moved in.
+     * @param move  the move that was performed.
      */
-    public void onMove(Board board, Tile oldTile, Tile newTile) {
+    public void onMove(Board board, Move move) {
         moves++;
 
         // Add this to the stale tiles array.
         System.arraycopy(prevTiles, 1, prevTiles, 0, 5);
 
-        prevTiles[5] = newTile;
+        prevTiles[5] = move.getDestination();
     }
 
     /**
@@ -205,7 +207,7 @@ public abstract class Piece {
      * @return whether the tile has no pieces on it.
      */
     public boolean isEmpty(Tile tile) {
-        if(tile == null) return false;
+        if (tile == null) return false;
         return board.get(tile) == null;
     }
 
@@ -214,7 +216,7 @@ public abstract class Piece {
      * @return whether the tile contains an enemy piece.
      */
     protected boolean containsEnemyPiece(Tile tile) {
-        if(tile == null) return false;
+        if (tile == null) return false;
         if (board.get(tile) == null) return false;
         return isWhite != board.get(tile).isWhite;
     }
@@ -224,7 +226,7 @@ public abstract class Piece {
      * @return whether the tile contains an ally piece.
      */
     protected boolean containsAllyPiece(Tile tile) {
-        if(tile == null) return false;
+        if (tile == null) return false;
         if (board.get(tile) == null) return false;
         return isWhite == board.get(tile).isWhite;
     }
@@ -323,6 +325,13 @@ public abstract class Piece {
      */
     public boolean hasMoved() {
         return moves > 0;
+    }
+
+    /**
+     * Clears the cache of the possible moves for this piece.
+     */
+    public void clearPossibleMovesCache() {
+        possibleMoves = null;
     }
 
     public Tile getTile() {

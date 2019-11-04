@@ -5,37 +5,38 @@ import chess.pieces.Piece;
 /**
  * Represents a possible move a piece can do.
  */
-public class Move {
-    private Piece piece; // The piece this move represents.
-    private Tile tile; // The location this piece can go to.
+public class Move{
+    private Tile src; // The source tile.
+    private Tile dest; // The destination tile.
 
     /**
      * Creates a new move.
-     * @param piece the piece this move represents.
-     * @param tile the location this piece can go to.
+     * @param src the source tile.
+     * @param dest the destination tile.
      */
-    public Move(Piece piece, Tile tile) {
-        this.piece = piece;
-        this.tile = tile;
+    public Move(Tile src, Tile dest) {
+        this.src = src;
+        this.dest = dest;
     }
 
-    public Piece getPiece() {
-        return piece;
-    }
 
     public boolean equals(Object o){
         if(o instanceof Move){
             Move move = (Move) o;
-            return piece.getInitial().equals(move.piece.getInitial()) && tile.equals(move.tile);
+            return src.equals(move.src) && dest.equals(move.dest);
         }
         return false;
     }
 
     public String toString(){
-        return piece.getTile() + " -> " + tile;
+        return src + " -> " + dest;
     }
 
-    public Tile getTile() {
-        return tile;
+    public Tile getSource() {
+        return src;
+    }
+
+    public Tile getDestination() {
+        return dest;
     }
 }

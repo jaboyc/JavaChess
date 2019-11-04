@@ -1,6 +1,7 @@
 package chess.pieces;
 
 import chess.Board;
+import chess.Move;
 import chess.Tile;
 
 import java.util.ArrayList;
@@ -127,23 +128,23 @@ public class King extends Piece {
 
 
     @Override
-    public void onMove(Board board, Tile oldTile, Tile newTile) {
-        super.onMove(board, oldTile, newTile);
+    public void onMove(Board board, Move move) {
+        super.onMove(board, move);
 
         // If the king just castled, adjust the position of the rook.
         if (isWhite()) {
-            if (newTile.getX() - oldTile.getX() == 2) {
-                board.movePiece(getRight(1), getLeft(1), false);
+            if (move.getDestination().getX() - move.getSource().getX() == 2) {
+                board.movePiece(new Move(getRight(1), getLeft(1)), false);
             }
-            if (newTile.getX() - oldTile.getX() == -2) {
-                board.movePiece(getLeft(2), getRight(1), false);
+            if (move.getDestination().getX() - move.getSource().getX() == -2) {
+                board.movePiece(new Move(getLeft(2), getRight(1)), false);
             }
         } else {
-            if (newTile.getX() - oldTile.getX() == -2) {
-                board.movePiece(getRight(2), getLeft(1), false);
+            if (move.getDestination().getX() - move.getSource().getX() == -2) {
+                board.movePiece(new Move(getRight(2), getLeft(1)), false);
             }
-            if (newTile.getX() - oldTile.getX() == 2) {
-                board.movePiece(getLeft(1), getRight(1), false);
+            if (move.getDestination().getX() - move.getSource().getX() == 2) {
+                board.movePiece(new Move(getLeft(1), getRight(1)), false);
             }
         }
 

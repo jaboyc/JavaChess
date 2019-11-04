@@ -1,6 +1,7 @@
 package chess.player;
 
 import chess.Board;
+import chess.Move;
 import chess.Tile;
 
 import java.util.Scanner;
@@ -38,7 +39,7 @@ public class Human extends Player{
                 System.out.print((isWhite() ? "[WHITE]" : "[BLACK]") + " Input the tile to move to: ");
             }
 
-            if(board.movePiece(srcTile, destTile)){
+            if(board.movePiece(new Move(srcTile, destTile))){
                 break;
             }
 

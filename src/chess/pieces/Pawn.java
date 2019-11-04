@@ -1,6 +1,7 @@
 package chess.pieces;
 
 import chess.Board;
+import chess.Move;
 import chess.Tile;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.List;
  */
 public class Pawn extends Piece {
 
-    public static final double UP_VALUE = 0.2f; // Multiplier for how far forward the piece is.
+    public static final double UP_VALUE = 0.08f; // Multiplier for how far forward the piece is.
 
     /**
      * Creates a Pawn.
@@ -84,13 +85,13 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public void onMove(Board board, Tile oldTile, Tile newTile) {
-        super.onMove(board, oldTile, newTile);
+    public void onMove(Board board, Move move) {
+        super.onMove(board, move);
 
         // If we hit the edge of the screen, upgrade to queen.
         if (getForward(1) == null) {
             board.removePiece(getTile());
-            board.addPiece(new Queen(board, isWhite(), newTile));
+            board.addPiece(new Queen(board, isWhite(), move.getDestination()));
         }
     }
 }

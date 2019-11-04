@@ -28,8 +28,8 @@ public abstract class Player {
      * @param checkForCheck whether to consider placing the king in check.
      * @return the list of moves.
      */
-    public List<Move> getPossibleMoves(Board board, boolean checkForCheck){
-        List<Move> possibleMoves = new ArrayList<>();
+    public ArrayList<Move> getPossibleMoves(Board board, boolean checkForCheck){
+        ArrayList<Move> possibleMoves = new ArrayList<>();
         for(Piece piece : board.getPieces(this)){
             possibleMoves.addAll(piece.getPossibleMoves(checkForCheck));
         }

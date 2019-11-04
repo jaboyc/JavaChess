@@ -22,4 +22,8 @@ public class Pair<T, K> {
     public K getSecond() {
         return second;
     }
+
+    public String toString(){
+        return "(" + getFirst() + "," + getSecond()+ ")";
+    }
 }
