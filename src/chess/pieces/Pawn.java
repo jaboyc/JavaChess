@@ -90,7 +90,7 @@ public class Pawn extends Piece {
 
         // If we hit the edge of the screen, upgrade to queen.
         if (getForward(1) == null) {
-            board.removePiece(getTile());
+            board.removePiece(move.getDestination());
             board.addPiece(new Queen(board, isWhite(), move.getDestination()));
         }
     }

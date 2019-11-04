@@ -17,7 +17,7 @@ public class Chess {
      * Creates a new Chess game.
      */
     public Chess() {
-        white = new CPU(true);
+        white = new Human(true);
         black = new CPU(false);
 
         board = new Board(this);
