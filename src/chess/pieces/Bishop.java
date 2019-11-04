@@ -16,8 +16,8 @@ public class Bishop extends Piece {
      * @param isWhite whether it is white or black.
      * @param tile the tile it is on.
      */
-    public Bishop(boolean isWhite, Tile tile) {
-        super(isWhite, tile);
+    public Bishop(Board board, boolean isWhite, Tile tile) {
+        super(board, isWhite, tile);
     }
 
     @Override
@@ -26,17 +26,17 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public Piece getCopy() {
-        return new Bishop(isWhite(), null);
+    public Piece getCopy(Board board) {
+        return new Bishop(board, isWhite(), null);
     }
 
     @Override
-    public float getValue() {
+    public double getValue() {
         return 3;
     }
 
     @Override
-    public List<Tile> getPossibleLocations(Board board) {
+    public List<Tile> getPossibleLocations() {
         ArrayList<Tile> moves = new ArrayList<>();
 
         // Look at all diagonals.
@@ -45,47 +45,47 @@ public class Bishop extends Piece {
 //                System.out.println("Somehow got here!!!");
 //
 //            }
-            if(containsEnemyPiece(getNEDiagonal(board, i))){
-                moves.add(getNEDiagonal(board, i));
+            if(containsEnemyPiece(getNEDiagonal( i))){
+                moves.add(getNEDiagonal( i));
             }
 
-            if(!isEmpty(getNEDiagonal(board, i))){
+            if(!isEmpty(getNEDiagonal( i))){
                 break;
             }
-            moves.add(getNEDiagonal(board, i));
+            moves.add(getNEDiagonal( i));
         }
 
         for(int i=1;i<8;i++){
-            if(containsEnemyPiece(getNWDiagonal(board, i))){
-                moves.add(getNWDiagonal(board, i));
+            if(containsEnemyPiece(getNWDiagonal( i))){
+                moves.add(getNWDiagonal( i));
             }
 
-            if(!isEmpty(getNWDiagonal(board, i))){
+            if(!isEmpty(getNWDiagonal( i))){
                 break;
             }
-            moves.add(getNWDiagonal(board, i));
+            moves.add(getNWDiagonal( i));
         }
 
         for(int i=1;i<8;i++){
-            if(containsEnemyPiece(getSEDiagonal(board, i))){
-                moves.add(getSEDiagonal(board, i));
+            if(containsEnemyPiece(getSEDiagonal( i))){
+                moves.add(getSEDiagonal( i));
             }
 
-            if(!isEmpty(getSEDiagonal(board, i))){
+            if(!isEmpty(getSEDiagonal( i))){
                 break;
             }
-            moves.add(getSEDiagonal(board, i));
+            moves.add(getSEDiagonal( i));
         }
 
         for(int i=1;i<8;i++){
-            if(containsEnemyPiece(getSWDiagonal(board, i))){
-                moves.add(getSWDiagonal(board, i));
+            if(containsEnemyPiece(getSWDiagonal( i))){
+                moves.add(getSWDiagonal( i));
             }
 
-            if(!isEmpty(getSWDiagonal(board, i))){
+            if(!isEmpty(getSWDiagonal( i))){
                 break;
             }
-            moves.add(getSWDiagonal(board, i));
+            moves.add(getSWDiagonal( i));
         }
 
         return moves;

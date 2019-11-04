@@ -11,8 +11,8 @@ import java.util.List;
  */
 public class King extends Piece {
 
-    private static final float KING_CASTLE_BONUS = 3f; // Bonus points for the king not moving.
-    private static final float KING_NESTLED_BONUS = 0.8f; // Bonus points for being surrounded by pieces.
+    private static final double KING_CASTLE_BONUS = 1.5f; // Bonus points for the king not moving.
+    private static final double KING_NESTLED_BONUS = 0.8f; // Bonus points for being surrounded by pieces.
 
     /**
      * Creates a King.
@@ -20,8 +20,8 @@ public class King extends Piece {
      * @param isWhite whether it is white or black.
      * @param tile    the tile it is on.
      */
-    public King(boolean isWhite, Tile tile) {
-        super(isWhite, tile);
+    public King(Board board, boolean isWhite, Tile tile) {
+        super(board, isWhite, tile);
     }
 
     @Override
@@ -30,17 +30,17 @@ public class King extends Piece {
     }
 
     @Override
-    public Piece getCopy() {
-        return new King(isWhite(), null);
+    public Piece getCopy(Board board) {
+        return new King(board, isWhite(), null);
     }
 
     @Override
-    public float getValue() {
+    public double getValue() {
         return 0;
     }
 
     @Override
-    public List<Tile> getPossibleLocations(Board board) {
+    public List<Tile> getPossibleLocations() {
         ArrayList<Tile> moves = new ArrayList<>();
 
         // Check all the spaces directly around the king.
@@ -48,35 +48,35 @@ public class King extends Piece {
         int[] stepsY = {-1, 0, 1, 1, 1, 0, -1, -1};
 
         for (int i = 0; i < 8; i++) {
-            Tile tile = getOffset(board, stepsX[i], stepsY[i]);
+            Tile tile = getOffset(stepsX[i], stepsY[i]);
             if (isEmpty(tile) || containsEnemyPiece(tile)) {
                 moves.add(tile);
             }
         }
 
-        if (board.shouldConsiderCastle()) {
+        if (getBoard().shouldConsiderCastle()) {
 
             // Prevent the other king from considering castling.
-            board.setConsiderCastle(false);
+            getBoard().setConsiderCastle(false);
 
             // If the board wants us to consider castling, check whether castling is possible.
-            if (getMoves() == 0 && canCastleRight(board) && !inCheck(board)) {
-                moves.add(getRight(board, 2));
+            if (getMoves() == 0 && canCastleRight(getBoard()) && !inCheck(getBoard())) {
+                moves.add(getRight(2));
             }
-            if (getMoves() == 0 && canCastleLeft(board) && !inCheck(board)) {
-                moves.add(getLeft(board, 2));
+            if (getMoves() == 0 && canCastleLeft(getBoard()) && !inCheck(getBoard())) {
+                moves.add(getLeft(2));
             }
 
             // Allow the other king to consider castling.
-            board.setConsiderCastle(true);
+            getBoard().setConsiderCastle(true);
         }
 
         return moves;
     }
 
     @Override
-    protected float getBonusScore(Board board) {
-        float bonus = 0f;
+    protected double getBonusScore(Board board) {
+        double bonus = 0f;
 
         if (getMoves() == 0 && canCastleRight(board))
             bonus += KING_CASTLE_BONUS;
@@ -88,7 +88,7 @@ public class King extends Piece {
         int[] stepsY = {-1, 0, 1, 1, 1, 0, -1, -1};
 
         for (int i = 0; i < 8; i++) {
-            Tile tile = getOffset(board, stepsX[i], stepsY[i]);
+            Tile tile = getOffset(stepsX[i], stepsY[i]);
             if (tile == null || containsAllyPiece(tile)) {
                 bonus += KING_NESTLED_BONUS;
             }
@@ -105,9 +105,9 @@ public class King extends Piece {
      */
     private boolean canCastleRight(Board board) {
         if (isWhite()) {
-            return isEmpty(getRight(board, 1)) && isEmpty(getRight(board, 2)) && getRight(board, 3) != null && getRight(board, 3).getPiece() != null && getRight(board, 3).getPiece().getInitial().equals("R") && !getRight(board, 3).getPiece().hasMoved();
+            return isEmpty(getRight(1)) && isEmpty(getRight(2)) && containsAllyPiece(getRight(3)) && board.get(getRight(3)).getInitial().equals("R") && !board.get(getRight(3)).hasMoved();
         } else {
-            return isEmpty(getRight(board, 1)) && isEmpty(getRight(board, 2)) && isEmpty(getRight(board, 3)) && getRight(board, 4) != null && getRight(board, 4).getPiece() != null && getRight(board, 4).getPiece().getInitial().equals("R") && !getRight(board, 4).getPiece().hasMoved();
+            return isEmpty(getRight(1)) && isEmpty(getRight(2)) && isEmpty(getRight(3)) && containsAllyPiece(getRight(4)) && board.get(getRight(4)).getInitial().equals("R") && !board.get(getRight(4)).hasMoved();
         }
     }
 
@@ -119,9 +119,9 @@ public class King extends Piece {
      */
     private boolean canCastleLeft(Board board) {
         if (isWhite()) {
-            return isEmpty(getLeft(board, 1)) && isEmpty(getLeft(board, 2)) && isEmpty(getLeft(board, 3)) && getLeft(board, 4) != null && getLeft(board, 4).getPiece() != null && getLeft(board, 4).getPiece().getInitial().equals("R") && !getLeft(board, 4).getPiece().hasMoved();
+            return isEmpty(getLeft(1)) && isEmpty(getLeft(2)) && isEmpty(getLeft(3)) && containsAllyPiece(getLeft(4)) && board.get(getLeft(4)).getInitial().equals("R") && !board.get(getLeft(4)).hasMoved();
         } else {
-            return isEmpty(getLeft(board, 1)) && isEmpty(getLeft(board, 2)) && getLeft(board, 4) != null && getLeft(board, 3).getPiece() != null && getLeft(board, 3).getPiece().getInitial().equals("R") && !getLeft(board, 3).getPiece().hasMoved();
+            return isEmpty(getLeft(1)) && isEmpty(getLeft(2)) && containsAllyPiece(getLeft(3)) && board.get(getLeft(3)).getInitial().equals("R") && !board.get(getLeft(3)).hasMoved();
         }
     }
 
@@ -133,17 +133,17 @@ public class King extends Piece {
         // If the king just castled, adjust the position of the rook.
         if (isWhite()) {
             if (newTile.getX() - oldTile.getX() == 2) {
-                board.movePiece(getRight(board, 1), getLeft(board, 1), false);
+                board.movePiece(getRight(1), getLeft(1), false);
             }
             if (newTile.getX() - oldTile.getX() == -2) {
-                board.movePiece(getLeft(board, 2), getRight(board, 1), false);
+                board.movePiece(getLeft(2), getRight(1), false);
             }
         } else {
             if (newTile.getX() - oldTile.getX() == -2) {
-                board.movePiece(getRight(board, 2), getLeft(board, 1), false);
+                board.movePiece(getRight(2), getLeft(1), false);
             }
             if (newTile.getX() - oldTile.getX() == 2) {
-                board.movePiece(getLeft(board, 1), getRight(board, 1), false);
+                board.movePiece(getLeft(1), getRight(1), false);
             }
         }
 

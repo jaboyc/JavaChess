@@ -60,7 +60,7 @@ public class Human extends Player{
         int row = Integer.parseInt("" + input.charAt(1));
         int col = (input.charAt(0) - 'a') + 1;
 
-        return board.get(col, row);
+        return Tile.pos(col, row);
     }
 
     /**

@@ -1,6 +1,7 @@
 package chess;
 
 import chess.player.CPU;
+import chess.player.Human;
 import chess.player.Player;
 
 /**
@@ -16,7 +17,7 @@ public class Chess {
      * Creates a new Chess game.
      */
     public Chess() {
-        white = new CPU(true);
+        white = new Human(true);
         black = new CPU(false);
 
         board = new Board(this);
@@ -41,7 +42,7 @@ public class Chess {
         board = board.copy();
 
         // Move the piece from the srcTile to the destTile.
-        board.movePiece(board.get(srcX, srcY), board.get(destX, destY));
+        board.movePiece(Tile.pos(srcX, srcY), Tile.pos(destX, destY));
     }
 
     /**

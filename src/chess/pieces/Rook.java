@@ -13,11 +13,12 @@ public class Rook extends Piece {
 
     /**
      * Creates a Rook.
+     *
      * @param isWhite whether it is white or black.
-     * @param tile the tile it is on.
+     * @param tile    the tile it is on.
      */
-    public Rook(boolean isWhite, Tile tile) {
-        super(isWhite, tile);
+    public Rook(Board board, boolean isWhite, Tile tile) {
+        super(board, isWhite, tile);
     }
 
     @Override
@@ -26,62 +27,66 @@ public class Rook extends Piece {
     }
 
     @Override
-    public Piece getCopy() {
-        return new Rook(isWhite(), null);
+    public Piece getCopy(Board board) {
+        return new Rook(board, isWhite(), null);
     }
 
     @Override
-    public float getValue() {
+    public double getValue() {
         return 5;
     }
 
     @Override
-    public List<Tile> getPossibleLocations(Board board) {
+    public List<Tile> getPossibleLocations() {
         ArrayList<Tile> moves = new ArrayList<>();
 
         // Check all the rows and files.
-        for(int i=1;i<8;i++){
-            if(containsEnemyPiece(getForward(board, i))){
-                moves.add(getForward(board, i));
+        for (int i = 1; i < 8; i++) {
+            if (containsEnemyPiece(getForward(i))) {
+                moves.add(getForward(i));
             }
 
-            if(!isEmpty(getForward(board, i))){
+            if (!isEmpty(getForward(i))) {
                 break;
             }
-            moves.add(getForward(board, i));
+
+            moves.add(getForward(i));
         }
 
-        for(int i=1;i<8;i++){
-            if(containsEnemyPiece(getBackward(board, i))){
-                moves.add(getBackward(board, i));
+        for (int i = 1; i < 8; i++) {
+            if (containsEnemyPiece(getBackward(i))) {
+                moves.add(getBackward(i));
             }
 
-            if(!isEmpty(getBackward(board, i))){
+            if (!isEmpty(getBackward(i))) {
                 break;
             }
-            moves.add(getBackward(board, i));
+
+            moves.add(getBackward(i));
         }
 
-        for(int i=1;i<8;i++){
-            if(containsEnemyPiece(getRight(board, i))){
-                moves.add(getRight(board, i));
+        for (int i = 1; i < 8; i++) {
+            if (containsEnemyPiece(getRight(i))) {
+                moves.add(getRight(i));
             }
 
-            if(!isEmpty(getRight(board, i))){
+            if (!isEmpty(getRight(i))) {
                 break;
             }
-            moves.add(getRight(board, i));
+
+            moves.add(getRight(i));
         }
 
-        for(int i=1;i<8;i++){
-            if(containsEnemyPiece(getLeft(board, i))){
-                moves.add(getLeft(board, i));
+        for (int i = 1; i < 8; i++) {
+            if (containsEnemyPiece(getLeft(i))) {
+                moves.add(getLeft(i));
             }
 
-            if(!isEmpty(getLeft(board, i))){
+            if (!isEmpty(getLeft(i))) {
                 break;
             }
-            moves.add(getLeft(board, i));
+
+            moves.add(getLeft(i));
         }
 
         return moves;

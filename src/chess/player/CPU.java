@@ -7,17 +7,18 @@ import chess.pieces.Piece;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a CPU player. Uses algorithms to find the best move to play against the human.
  */
 public class CPU extends Player {
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static final int COMPLEXITY = 2; // The number of its turns it looks ahead in the future to decide its next move.
-    private static final int FUTURE_MAX = 20; // The largest number of futures to keep.
-    private static final float TRIM_HEAD = 0.2f; // The percentage of each side of the futures array to keep.
+    private static final int FUTURE_MAX = 60; // The largest number of futures to keep.
+    private static final double TRIM_HEAD = 0.2; // The percentage of each side of the futures array to keep.
 
     public CPU(boolean isWhite) {
         super(isWhite);
@@ -25,12 +26,11 @@ public class CPU extends Player {
 
     @Override
     public void move(Board board) {
-        List<Pair<Move, Float>> moveScores = new ArrayList<>(); // Stores a list of moves with their total associated scores.
+        List<Pair<Move, Double>> moveScores = new ArrayList<>(); // Stores a list of moves with their total associated scores.
 
-        for (Move rootMove : getPossibleMoves(board, true)) {
-
+        moveScores.addAll(getPossibleMoves(board, true).parallelStream().map(rootMove ->{
             Board rootFuture = board.copy(); // Get the first future from the given move.
-            rootFuture.movePiece(rootFuture.get(rootMove.getPiece().getTile().getX(), rootMove.getPiece().getTile().getY()), rootFuture.get(rootMove.getTile().getX(), rootMove.getTile().getY())); // Move the first piece.
+            rootFuture.movePiece(rootMove.getPiece().getTile(), rootMove.getTile()); // Move the first piece.
 
             List<Board> futures = new ArrayList<>(); // Stores a list of future moves possible.
             futures.add(rootFuture); // Adds the current board.
@@ -54,7 +54,7 @@ public class CPU extends Player {
                     for (Move move : currPlayer.getPossibleMoves(future, true)) {
 
                         Board newFuture = future.copy();
-                        newFuture.movePiece(newFuture.get(move.getPiece().getTile().getX(), move.getPiece().getTile().getY()), newFuture.get(move.getTile().getX(), move.getTile().getY()));
+                        newFuture.movePiece(move.getPiece().getTile(), move.getTile());
 
                         nextFutures.add(newFuture);
                     }
@@ -88,23 +88,23 @@ public class CPU extends Player {
             }
 
             // Calculate score of the root move by getting the average of the moves.
-            float moveScore = 0; // Stores the score of this move.
+            double moveScore = 0; // Stores the score of this move.
             for (Board b : futures) {
                 moveScore += getScore(b);
             }
             moveScore = moveScore / futures.size();
 
-            // Add the root move to the move scores list.
-            moveScores.add(new Pair<>(rootMove, moveScore));
-
             if (DEBUG) System.out.println(rootMove + " = " + (moveScore - getScore(board)));
-        }
+
+            // Add the root move to the move scores list.
+            return new Pair<>(rootMove, moveScore);
+        }).collect(Collectors.toList()));
 
         // Find the highest scoring move.
         Move highestMove = null;
-        float highestScore = -1000000;
+        double highestScore = -1000000;
 
-        for (Pair<Move, Float> pair : moveScores) {
+        for (Pair<Move, Double> pair : moveScores) {
             if (pair.getSecond() > highestScore) {
                 highestMove = pair.getFirst();
                 highestScore = pair.getSecond();

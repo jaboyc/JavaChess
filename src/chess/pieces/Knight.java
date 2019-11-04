@@ -16,8 +16,8 @@ public class Knight extends Piece {
      * @param isWhite whether it is white or black.
      * @param tile the tile it is on.
      */
-    public Knight(boolean isWhite, Tile tile) {
-        super(isWhite, tile);
+    public Knight(Board board, boolean isWhite, Tile tile) {
+        super(board, isWhite, tile);
     }
 
     @Override
@@ -26,17 +26,17 @@ public class Knight extends Piece {
     }
 
     @Override
-    public Piece getCopy() {
-        return new Knight(isWhite(), null);
+    public Piece getCopy(Board board) {
+        return new Knight(board,isWhite(), null);
     }
 
     @Override
-    public float getValue() {
+    public double getValue() {
         return 3;
     }
 
     @Override
-    public List<Tile> getPossibleLocations(Board board) {
+    public List<Tile> getPossibleLocations() {
         ArrayList<Tile> moves = new ArrayList<>();
 
         // Check all L-shaped locations around the knight.
@@ -44,7 +44,7 @@ public class Knight extends Piece {
         int[] stepsY = {2, -2, 1, -1, 2, -2, 1, -1};
 
         for(int i=0;i<8;i++){
-            Tile tile = getOffset(board, stepsX[i], stepsY[i]);
+            Tile tile = getOffset( stepsX[i], stepsY[i]);
             if(isEmpty(tile) || containsEnemyPiece(tile)){
                 moves.add(tile);
             }

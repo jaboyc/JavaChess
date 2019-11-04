@@ -4,19 +4,19 @@ import chess.pieces.*;
 import chess.player.Player;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents the state of the chess board at one time.
  */
 public class Board {
-    private Tile[][] tiles; // The matrix of tiles this board has.
     private Chess chess; // The chess game manager attached to this board.
 
-    private ArrayList<Piece> whitePieces; // The list of white pieces on the board.
-    private ArrayList<Piece> blackPieces; // The list of white pieces on the board.
+    private ArrayList<Piece> pieces; // List of pieces on the board.
 
-    private float whiteScore = -1; // Lazily loaded score for white.
-    private float blackScore = -1; // Lazily loaded score for black.
+    private double whiteScore = -1; // Lazily loaded score for white.
+    private double blackScore = -1; // Lazily loaded score for black.
 
     private boolean considerCastle = true; // Whether this board should consider castling in its possible moveset.
 
@@ -38,15 +38,10 @@ public class Board {
     private Board(Chess chess, boolean initialize) {
         this.chess = chess;
 
-        tiles = new Tile[8][8];
-        whitePieces = new ArrayList<>();
-        blackPieces = new ArrayList<>();
-
-        generateTiles();
+        pieces = new ArrayList<>();
 
         if (initialize) {
             placePieces();
-            setPieceOwners();
         }
     }
 
@@ -56,48 +51,41 @@ public class Board {
     public Board copy() {
         Board copy = new Board(chess, false);
 
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                copy.tiles[i][j] = tiles[i][j].copy();
-
-                Piece piece = copy.tiles[i][j].getPiece();
-                if (piece != null) {
-                    if (piece.isWhite()) {
-                        copy.whitePieces.add(piece);
-                    } else {
-                        copy.blackPieces.add(piece);
-                    }
-                }
-            }
+        for (Piece piece : pieces) {
+            copy.pieces.add(piece.copy(copy));
         }
+//        copy.pieces.addAll(pieces.stream().map(e->e.copy(copy)).collect(Collectors.toList()));
+
         return copy;
     }
 
     /**
-     * Checks to make sure the given coordinate is valid. If so, returns the tile represented by x and y.
-     *
-     * @param x the x of the tile to get.
-     * @param y the y of the tile to get.
-     * @return the tile represented by x and y. Null if out of bounds.
+     * @param tile the tile to get the piece of.
+     * @return the piece represented on the tile. Null if not found.
      */
-    public Tile get(int x, int y) {
-        if (x <= 0 || x > 8 || y <= 0 || y > 8) {
-            return null;
+    public Piece get(Tile tile) {
+        for (Piece piece : pieces) {
+            if (piece.getTile().equals(tile)) {
+                return piece;
+            }
         }
-        return tiles[y - 1][x - 1];
+        return null;
+//        return pieces.stream().filter(e->e.getTile().equals(tile)).findFirst().orElse(null);
     }
 
     /**
-     * Returns the piece at the given coordinates.
-     *
-     * @param x the x of the tile to check.
-     * @param y the y of the tile to check.
-     * @return the piece at that given coordinate. Null if not found or out of bounds.
+     * @param x the x of the piece to look for.
+     * @param y the y of the piece to look for.
+     * @return the piece represented by the coordinate. Null if not found.
      */
-    public Piece getPieceAt(int x, int y) {
-        Tile tile = get(x, y);
-        if (tile == null) return null;
-        return tile.getPiece();
+    public Piece get(int x, int y) {
+        for (Piece piece : pieces) {
+            if (piece.getTile().getX() == x && piece.getTile().getY() == y) {
+                return piece;
+            }
+        }
+        return null;
+//        return pieces.stream().filter(e->e.getTile().getX() == x && e.getTile().getY() == y).findFirst().orElse(null);
     }
 
     /**
@@ -120,28 +108,24 @@ public class Board {
      * @return whether the move was applied.
      */
     public boolean movePiece(Tile srcTile, Tile destTile, boolean checkValid) {
-        // Get the tile from THIS board. Should be optimized!!!
-        srcTile = get(srcTile.getX(), srcTile.getY());
-        destTile = get(destTile.getX(), destTile.getY());
 
-        Piece piece = srcTile.getPiece();
+        Piece piece = get(srcTile);
         if (piece == null) return false;
 
         // If we want to check whether the move is valid, and the move is invalid for the piece, don't do anything.
-        if (checkValid && !piece.isValidMove(this, destTile)){
+        if (checkValid && !piece.isValidMove(destTile)) {
             return false;
         }
 
-        // Remove the piece from the destination tile.
+        // Remove the piece in the destination tile.
         removePiece(destTile);
 
         // Move the piece from the source tile to the destination tile.
-        srcTile.setPiece(null);
-        destTile.setPiece(piece);
-        piece.setTile(destTile);
+        piece.moveTo(destTile);
 
         // Trigger onMove for the moved piece.
         piece.onMove(this, srcTile, destTile);
+
 
         return true;
     }
@@ -163,8 +147,6 @@ public class Board {
         // Check if any of the enemy's possible moves can attack the king.
         for (Move move : enemy.getPossibleMoves(this, false)) {
             if (move.getTile().equals(kingSpace)) {
-//                System.out.println("CHECK: " + move.getPiece().getTile() + " -> " + move.getTile());
-//                System.out.println("===WHAT===" + this);
                 return true;
             }
         }
@@ -185,26 +167,31 @@ public class Board {
      * @param player the player to get the pieces of from the board.
      * @return the list of pieces that player has.
      */
-    public ArrayList<Piece> getPieces(Player player) {
-        if (player.isWhite()) {
-            return whitePieces;
-        } else {
-            return blackPieces;
-        }
+    public List<Piece> getPieces(Player player) {
+        return getPieces(player.isWhite());
+    }
+
+    /**
+     * @param isWhite whether to look for the white or black pieces.
+     * @return the list of pieces that player has.
+     */
+    public List<Piece> getPieces(boolean isWhite) {
+        return pieces.stream().filter(e -> e.isWhite() == isWhite).collect(Collectors.toList());
     }
 
     /**
      * Returns the score of the given player.
+     *
      * @param player the player to get the score of.
      * @return the score. Does not subtract the score of the enemy.
      */
-    public float getScore(Player player){
+    public double getScore(Player player) {
 
         // Check if the score is lazily loaded already.
-        if(player.isWhite()){
-            if(whiteScore != -1) return whiteScore;
-        }else{
-            if(blackScore != -1) return blackScore;
+        if (player.isWhite()) {
+            if (whiteScore != -1) return whiteScore;
+        } else {
+            if (blackScore != -1) return blackScore;
         }
 
         // Check for checkmates first.
@@ -212,23 +199,17 @@ public class Board {
             return 1000;
         }
 
-        if(!player.canMove(this)){
+        if (!player.canMove(this)) {
             return -1000;
         }
 
         // Calculate total score of each piece.
-        float score = 0;
-        ArrayList<Piece> pieces = getPieces(player);
-
-        // Add up the scores of all the pieces.
-        for(Piece piece : pieces){
-            score += piece.getScore(this);
-        }
+        double score = getPieces(player).stream().mapToDouble(e -> e.getScore()).sum();
 
         // Cache the score.
-        if(player.isWhite()){
+        if (player.isWhite()) {
             whiteScore = score;
-        }else{
+        } else {
             blackScore = score;
         }
 
@@ -237,10 +218,11 @@ public class Board {
 
     /**
      * Returns the player.
+     *
      * @param isWhite whether to get the white or black player.
      * @return the player.
      */
-    public Player getPlayer(boolean isWhite){
+    public Player getPlayer(boolean isWhite) {
         return isWhite ? chess.getWhite() : chess.getBlack();
     }
 
@@ -257,30 +239,20 @@ public class Board {
      *
      * @param tile the tile to remove the piece from.
      */
-    private void removePiece(Tile tile) {
-        Piece piece = tile.getPiece();
+    public void removePiece(Tile tile) {
+        Piece piece = get(tile);
         if (piece == null) return;
 
-        // Remove the piece from the player associated with it.
-        if (piece.isWhite()) {
-            whitePieces.remove(piece);
-        } else {
-            blackPieces.remove(piece);
-        }
-
-        // Set the tile's piece to nothing.
-        tile.setPiece(null);
+        pieces.remove(piece);
     }
 
     /**
-     * Generates the 8x8 grid of tiles.
+     * Adds the piece to the board.
+     *
+     * @param piece the piece to add.
      */
-    private void generateTiles() {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                tiles[i][j] = new Tile(j + 1, i + 1);
-            }
-        }
+    public void addPiece(Piece piece) {
+        pieces.add(piece);
     }
 
     /**
@@ -289,46 +261,29 @@ public class Board {
     private void placePieces() {
 
         // Place white's pieces.
-        tiles[0][0].setPiece(new Rook(true, tiles[0][0]));
-        tiles[0][1].setPiece(new Knight(true, tiles[0][1]));
-        tiles[0][2].setPiece(new Bishop(true, tiles[0][2]));
-        tiles[0][3].setPiece(new Queen(true, tiles[0][3]));
-        tiles[0][4].setPiece(new King(true, tiles[0][4]));
-        tiles[0][5].setPiece(new Bishop(true, tiles[0][5]));
-        tiles[0][6].setPiece(new Knight(true, tiles[0][6]));
-        tiles[0][7].setPiece(new Rook(true, tiles[0][7]));
+        pieces.add(new Rook(this, true, Tile.pos(1, 1)));
+        pieces.add(new Knight(this, true, Tile.pos(2, 1)));
+        pieces.add(new Bishop(this, true, Tile.pos(3, 1)));
+        pieces.add(new Queen(this, true, Tile.pos(4, 1)));
+        pieces.add(new King(this, true, Tile.pos(5, 1)));
+        pieces.add(new Bishop(this, true, Tile.pos(6, 1)));
+        pieces.add(new Knight(this, true, Tile.pos(7, 1)));
+        pieces.add(new Rook(this, true, Tile.pos(8, 1)));
         for (int i = 0; i < 8; i++) {
-            tiles[1][i].setPiece(new Pawn(true, tiles[1][i]));
+            pieces.add(new Pawn(this, true, Tile.pos(i + 1, 2)));
         }
 
         // Place black's pieces.
-        tiles[7][0].setPiece(new Rook(false, tiles[7][0]));
-        tiles[7][1].setPiece(new Knight(false, tiles[7][1]));
-        tiles[7][2].setPiece(new Bishop(false, tiles[7][2]));
-        tiles[7][3].setPiece(new Queen(false, tiles[7][3]));
-        tiles[7][4].setPiece(new King(false, tiles[7][4]));
-        tiles[7][5].setPiece(new Bishop(false, tiles[7][5]));
-        tiles[7][6].setPiece(new Knight(false, tiles[7][6]));
-        tiles[7][7].setPiece(new Rook(false, tiles[7][7]));
+        pieces.add(new Rook(this, false, Tile.pos(1, 8)));
+        pieces.add(new Knight(this, false, Tile.pos(2, 8)));
+        pieces.add(new Bishop(this, false, Tile.pos(3, 8)));
+        pieces.add(new Queen(this, false, Tile.pos(4, 8)));
+        pieces.add(new King(this, false, Tile.pos(5, 8)));
+        pieces.add(new Bishop(this, false, Tile.pos(6, 8)));
+        pieces.add(new Knight(this, false, Tile.pos(7, 8)));
+        pieces.add(new Rook(this, false, Tile.pos(8, 8)));
         for (int i = 0; i < 8; i++) {
-            tiles[6][i].setPiece(new Pawn(false, tiles[6][i]));
-        }
-    }
-
-    /**
-     * Set the owners of the placed pieces to the correct player.
-     */
-    private void setPieceOwners() {
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 8; j++) {
-                whitePieces.add(tiles[i][j].getPiece());
-            }
-        }
-
-        for (int i = 6; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                blackPieces.add(tiles[i][j].getPiece());
-            }
+            pieces.add(new Pawn(this, false, Tile.pos(i + 1, 7)));
         }
     }
 
@@ -347,24 +302,31 @@ public class Board {
         output.append("  ***********************************\n");
 
         // Go through the rows, starting with the top one first.
-        for (int i = 7; i >= 0; i--) {
+        for (int i = 8; i >= 1; i--) {
 
             // Add the row coordinates.
-            output.append(i + 1);
+            output.append(i);
 
             // Add the chess boundary.
             output.append(" *");
 
             // Add each tile in the row.
-            for (int j = 0; j < 8; j++) {
-                output.append(tiles[i][j].formattedForBoard());
+            for (int j = 1; j <= 8; j++) {
+                Piece piece = get(j, i);
+                if (piece == null) {
+                    output.append("|   ");
+                } else if (piece.isWhite()) {
+                    output.append("| ").append(piece.getInitial()).append(" ");
+                } else {
+                    output.append("|(").append(piece.getInitial()).append(")");
+                }
             }
 
             // Add the chess boundary.
             output.append("|* ");
 
             // Add the row coordinates.
-            output.append(i + 1);
+            output.append(i);
 
             // Add a new line.
             output.append("\n");

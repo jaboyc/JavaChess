@@ -31,7 +31,7 @@ public abstract class Player {
     public List<Move> getPossibleMoves(Board board, boolean checkForCheck){
         List<Move> possibleMoves = new ArrayList<>();
         for(Piece piece : board.getPieces(this)){
-            possibleMoves.addAll(piece.getPossibleMoves(board, checkForCheck));
+            possibleMoves.addAll(piece.getPossibleMoves(checkForCheck));
         }
         return possibleMoves;
     }
@@ -67,7 +67,7 @@ public abstract class Player {
      * @param board the board to use.
      * @return the score as a number.
      */
-    public float getScore(Board board){
+    public double getScore(Board board){
         return board.getScore(this) - board.getScore(board.getEnemy(this));
     }
 
