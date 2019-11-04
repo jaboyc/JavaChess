@@ -17,7 +17,7 @@ public class Chess {
      * Creates a new Chess game.
      */
     public Chess() {
-        white = new Human(true);
+        white = new CPU(true);
         black = new CPU(false);
 
         board = new Board(this);
@@ -124,5 +124,5 @@ Current limitations
 1. NO En passant.
 2. You CAN castle the king even if he has been checked before.
 3. You CAN castle THROUGH check.
-4. Pawns can NOT be upgraded.
+4. Pawns are ONLY upgraded to queens.
  */

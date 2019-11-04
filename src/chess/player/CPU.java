@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public class CPU extends Player {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final int COMPLEXITY = 2; // The number of its turns it looks ahead in the future to decide its next move.
 
@@ -25,11 +25,11 @@ public class CPU extends Player {
 
         ArrayList<Pair<Move, Double>> moveScores = getPossibleMoves(board, true).parallelStream().map(move -> {
             Board future = board.copy();
-            future.movePiece(move);
+            future.movePiece(move, false);
 
             Pair<Move, Double> moveScore = calculate(future, board.getEnemy(this), COMPLEXITY - 1, move);
 
-            System.out.println(move + " (" + String.format("%.2f", moveScore.getSecond()) + ")");
+            if (DEBUG) System.out.println(move + " (" + String.format("%.2f", moveScore.getSecond()) + ")");
 
             return moveScore;
         }).collect(Collectors.toCollection(ArrayList::new));
@@ -63,7 +63,7 @@ public class CPU extends Player {
 
         for (Move move : curr.getPossibleMoves(board, true)) {
             Board future = board.copy();
-            future.movePiece(move);
+            future.movePiece(move, false);
 
             if (layersLeft == 0) {
                 moveScores.add(new Pair<>(rootMove, getScore(future)));
@@ -115,7 +115,7 @@ public class CPU extends Player {
         for (Pair<Move, Double> pair : moves) {
             if (lowest == null) {
                 lowest = pair;
-            } else if (pair.getSecond() > lowest.getSecond()) {
+            } else if (pair.getSecond() < lowest.getSecond()) {
                 lowest = pair;
             }
         }

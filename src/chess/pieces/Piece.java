@@ -12,9 +12,9 @@ import java.util.List;
  */
 public abstract class Piece {
 
-    public static final double MOVE_VALUE = 0.06f; // Multiplier for the value of a piece for the ability to move.
-    public static final double PROTECT_VALUE = 0.4f; // Multiplier for the value of a piece when protecting it.
-    public static final double ATTACK_VALUE = 0.15f; // Multiplier for the value of a piece for the ability to attack an enemy piece.
+    public static final double MOVE_VALUE = 0.02f; // Multiplier for the value of a piece for the ability to move.
+    public static final double PROTECT_VALUE = 0.1f; // Multiplier for the value of a piece when protecting it.
+    public static final double ATTACK_VALUE = 0.04f; // Multiplier for the value of a piece for the ability to attack an enemy piece.
 
     private Tile tile; // The tile this piece is on.
     private boolean isWhite; // Whether this piece is white or black.

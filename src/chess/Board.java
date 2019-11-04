@@ -23,8 +23,6 @@ public class Board {
     private double whiteScore = -1; // Cached score for white.
     private double blackScore = -1; // Cached loaded score for black.
 
-    private Stack<Move> prevMoves; // Stack of moves that led to this board.
-
     private boolean considerCastle = true; // Whether this board should consider castling in its possible moveset.
 
     /**
@@ -46,7 +44,6 @@ public class Board {
         this.chess = chess;
 
         pieces = new ArrayList<>();
-        prevMoves = new Stack<>();
 
         if (initialize) {
             placePieces();
@@ -63,8 +60,6 @@ public class Board {
         for (Piece piece : pieces) {
             copy.pieces.add(piece.copy(copy));
         }
-
-        copy.prevMoves = prevMoves;
 
 //        copy.pieces.addAll(pieces.stream().map(e->e.copy(copy)).collect(Collectors.toList()));
 
@@ -139,9 +134,6 @@ public class Board {
 
         // Trigger onMove for the moved piece.
         piece.onMove(this, move);
-
-        // Add to previous moves stack.
-        prevMoves.add(move);
 
         clearGridCache();
         clearPiecesCache();
@@ -425,11 +417,19 @@ public class Board {
         // Add scores
         output.append("(").append(String.format("%.1f", getScore(chess.getWhite()))).append(") [");
 
-        int pointsCount = (int) (getScore(chess.getWhite())/(getScore(chess.getWhite()) + getScore(chess.getBlack())) * 20);
+        int pointsCount = Math.max((int) (getScore(chess.getWhite())/(getScore(chess.getWhite()) + getScore(chess.getBlack())) * 20), 0);
         for(int i=0;i<pointsCount;i++){
+            if(i == 10){
+                output.append("|");
+                continue;
+            }
             output.append("X");
         }
-        for(int i=pointsCount;i<20;i++){
+        for(int i=pointsCount;i<=20;i++){
+            if(i == 10){
+                output.append("|");
+                continue;
+            }
             output.append(".");
         }
 
