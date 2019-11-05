@@ -31,11 +31,6 @@ public class King extends Piece {
     }
 
     @Override
-    public Piece getCopy(Board board) {
-        return new King(board, isWhite(), null);
-    }
-
-    @Override
     public double getValue() {
         return 0;
     }
@@ -147,6 +142,41 @@ public class King extends Piece {
                 board.movePiece(new Move(getLeft(1), getRight(1)), false);
             }
         }
+    }
 
+    @Override
+    public void onUnMove(Board board, Move move) {
+        super.onUnMove(board, move);
+
+        Move rookMove;
+
+        // If the king just castled, adjust the position of the rook.
+        if (isWhite()) {
+            if (move.getDestination().getX() - move.getSource().getX() == 2) {
+                rookMove = new Move(getRight(1), getRight(3));
+                board.get(getRight(1)).onUnMove(board, rookMove);
+                board.movePiece(rookMove, false);
+                board.get(getRight(3)).onUnMove(board, rookMove);
+            }
+            if (move.getDestination().getX() - move.getSource().getX() == -2) {
+                rookMove = new Move(getLeft(1), getLeft(4));
+                board.get(getLeft(1)).onUnMove(board, rookMove);
+                board.movePiece(rookMove, false);
+                board.get(getLeft(4)).onUnMove(board, rookMove);
+            }
+        } else {
+            if (move.getDestination().getX() - move.getSource().getX() == -2) {
+                rookMove = new Move(getRight(1), getRight(4));
+                board.get(getRight(1)).onUnMove(board, rookMove);
+                board.movePiece(rookMove, false);
+                board.get(getRight(4)).onUnMove(board, rookMove);
+            }
+            if (move.getDestination().getX() - move.getSource().getX() == 2) {
+                rookMove = new Move(getLeft(1), getLeft(3));
+                board.get(getLeft(1)).onUnMove(board, rookMove);
+                board.movePiece(rookMove, false);
+                board.get(getLeft(3)).onUnMove(board, rookMove);
+            }
+        }
     }
 }

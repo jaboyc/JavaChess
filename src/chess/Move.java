@@ -9,6 +9,8 @@ public class Move{
     private Tile src; // The source tile.
     private Tile dest; // The destination tile.
 
+    private Piece removedPiece; // The piece this move removed. Null if none.
+
     /**
      * Creates a new move.
      * @param src the source tile.
@@ -23,9 +25,17 @@ public class Move{
     public boolean equals(Object o){
         if(o instanceof Move){
             Move move = (Move) o;
-            return src.equals(move.src) && dest.equals(move.dest);
+            return src.equals(move.src) && dest.equals(move.dest) && removedPiece == move.removedPiece;
         }
         return false;
+    }
+
+    public Piece getRemovedPiece() {
+        return removedPiece;
+    }
+
+    public void setRemovedPiece(Piece removedPiece) {
+        this.removedPiece = removedPiece;
     }
 
     public String toString(){

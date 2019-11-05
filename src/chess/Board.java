@@ -20,50 +20,26 @@ public class Board {
 
     private Piece[][] pieceGrid; // Cached grid of pieces.
 
+    private Stack<Move> history; // History of all the moves applied to this board.
+
     private double whiteScore = -1; // Cached score for white.
     private double blackScore = -1; // Cached loaded score for black.
 
     private boolean considerCastle = true; // Whether this board should consider castling in its possible moveset.
 
     /**
-     * Creates a new board and initializes it.
-     *
-     * @param chess the chess game manager attached to this board.
-     */
-    public Board(Chess chess) {
-        this(chess, true);
-    }
-
-    /**
      * Creates a new board.
      *
      * @param chess      the chess game manager attached to this board.
-     * @param initialize whether to initialize this board to its beginning state.
      */
-    private Board(Chess chess, boolean initialize) {
+    public Board(Chess chess) {
         this.chess = chess;
 
         pieces = new ArrayList<>();
+        history = new Stack<>();
 
-        if (initialize) {
-            placePieces();
-            constructGrid();
-        }
-    }
-
-    /**
-     * @return a copy of this board.
-     */
-    public Board copy() {
-        Board copy = new Board(chess, false);
-
-        for (Piece piece : pieces) {
-            copy.pieces.add(piece.copy(copy));
-        }
-
-//        copy.pieces.addAll(pieces.stream().map(e->e.copy(copy)).collect(Collectors.toList()));
-
-        return copy;
+        placePieces();
+        constructGrid();
     }
 
     /**
@@ -73,13 +49,6 @@ public class Board {
     public Piece get(Tile tile) {
         if(pieceGrid == null) constructGrid();
         return pieceGrid[tile.getX()-1][tile.getY()-1];
-//        for (Piece piece : pieces) {
-//            if (piece.getTile().equals(tile)) {
-//                return piece;
-//            }
-//        }
-//        return null;
-//        return pieces.stream().filter(e->e.getTile().equals(tile)).findFirst().orElse(null);
     }
 
     /**
@@ -90,13 +59,6 @@ public class Board {
     public Piece get(int x, int y) {
         if(pieceGrid == null) constructGrid();
         return pieceGrid[x-1][y-1];
-//        for (Piece piece : pieces) {
-//            if (piece.getTile().getX() == x && piece.getTile().getY() == y) {
-//                return piece;
-//            }
-//        }
-//        return null;
-//        return pieces.stream().filter(e->e.getTile().getX() == x && e.getTile().getY() == y).findFirst().orElse(null);
     }
 
     /**
@@ -118,8 +80,17 @@ public class Board {
      */
     public boolean movePiece(Move move, boolean checkValid) {
 
+        // Get the piece to move.
         Piece piece = get(move.getSource());
-        if (piece == null) return false;
+        if (piece == null) {
+            System.out.println(this);
+            System.out.println("Attempted " + move);
+            System.out.println("Previous moves: " + history);
+            System.out.println("CheckValid? " + checkValid);
+            System.out.println("Something went wrong");
+            throw new Error();
+//            return false;
+        }
 
         // If we want to check whether the move is valid, and the move is invalid for the piece, don't do anything.
         if (checkValid && !piece.isValidMove(move.getDestination())) {
@@ -127,7 +98,7 @@ public class Board {
         }
 
         // Remove the piece in the destination tile.
-        removePiece(move.getDestination());
+        move.setRemovedPiece(removePiece(move.getDestination()));
 
         // Move the piece from the source tile to the destination tile.
         piece.moveTo(move.getDestination());
@@ -135,12 +106,46 @@ public class Board {
         // Trigger onMove for the moved piece.
         piece.onMove(this, move);
 
+        // Add the move to history.
+        history.push(move);
+
+        // Clear the caches.
         clearGridCache();
         clearPiecesCache();
+        clearPlayerPiecesCache();
+        clearScoreCache();
 
         return true;
     }
 
+    /**
+     * Sets the state of the board to the last move.
+     */
+    public void undoMove(){
+
+        // Get the last move.
+        Move move = history.pop();
+
+        // Get the piece that was moved at that spot.
+        Piece piece = get(move.getDestination());
+
+        // Move the piece from the source tile to the destination tile.
+        piece.moveTo(move.getSource());
+
+        // If we removed a piece, place it back.
+        if(move.getRemovedPiece() != null){
+            addPiece(move.getRemovedPiece());
+        }
+
+        // Trigger onMove for the moved piece.
+        piece.onUnMove(this, move);
+
+        // Clear the caches.
+        clearGridCache();
+        clearPiecesCache();
+        clearPlayerPiecesCache();
+        clearScoreCache();
+    }
 
     /**
      * Returns whether the given player is in check or not.
@@ -250,16 +255,6 @@ public class Board {
     }
 
     /**
-     * Returns the player.
-     *
-     * @param isWhite whether to get the white or black player.
-     * @return the player.
-     */
-    public Player getPlayer(boolean isWhite) {
-        return isWhite ? chess.getWhite() : chess.getBlack();
-    }
-
-    /**
      * @param player the player to use.
      * @return the enemy of the player.
      */
@@ -271,16 +266,19 @@ public class Board {
      * Removes the piece from the given tile if one exists.
      *
      * @param tile the tile to remove the piece from.
+     * @return the piece it removed. Null if none.
      */
-    public void removePiece(Tile tile) {
+    public Piece removePiece(Tile tile) {
         Piece piece = get(tile);
-        if (piece == null) return;
+        if (piece == null) return null;
 
         pieces.remove(piece);
 
         clearGridCache();
         clearPlayerPiecesCache();
         clearPiecesCache();
+
+        return piece;
     }
 
     /**
@@ -335,6 +333,9 @@ public class Board {
         pieceGrid = new Piece[8][8];
 
         for(Piece piece : pieces){
+            if(piece == null){
+                System.out.println(pieces);
+            }
             pieceGrid[piece.getTile().getX()-1][piece.getTile().getY()-1] = piece;
         }
     }
@@ -361,6 +362,14 @@ public class Board {
         for(Piece piece : pieces){
             piece.clearPossibleMovesCache();
         }
+    }
+
+    /**
+     * Clears the caches of the scores.
+     */
+    private void clearScoreCache(){
+        whiteScore = -1;
+        blackScore = -1;
     }
 
     /**
@@ -445,4 +454,6 @@ public class Board {
     public void setConsiderCastle(boolean considerCastle) {
         this.considerCastle = considerCastle;
     }
+
+
 }

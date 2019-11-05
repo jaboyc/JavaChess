@@ -39,8 +39,6 @@ public class Chess {
         int destY = Integer.parseInt("" + destTile.charAt(1));
         int destX = (destTile.charAt(0) - 'a') + 1;
 
-        board = board.copy();
-
         // Move the piece from the srcTile to the destTile.
         board.movePiece(new Move(Tile.pos(srcX, srcY), Tile.pos(destX, destY)));
     }
@@ -58,9 +56,6 @@ public class Chess {
 
         // Go through each player and move.
         while (true) {
-
-            // Copy the board.
-            board = board.copy();
 
             // If the player cannot move, stop the game.
             if (!move(currPlayer)) {
@@ -105,36 +100,38 @@ public class Chess {
 
     public static void main(String[] args) {
         Chess chess = new Chess();
-        chess.performMove("e2e4");
-        chess.performMove("e7e5");
+//        chess.performMove("e2e4");
+//        chess.performMove("e7e5");
+//
+//        chess.performMove("d1h5");
+//        chess.performMove("d7d6");
+//
+//        chess.performMove("g1f3");
+//        chess.performMove("g8f6");
+//
+//        chess.performMove("h5g5");
+//        chess.performMove("c8g4");
+//
+//        chess.performMove("h2h3");
+//        chess.performMove("g4f3");
+//
+//        chess.performMove("g2f3");
+//        chess.performMove("b8c6");
+//
+//        chess.performMove("f1b5");
+//        chess.performMove("a7a6");
+//
+//        chess.performMove("b5c6");
+//        chess.performMove("b7c6");
+//
+//        chess.performMove("d2d3");
+//        chess.performMove("h7h6");
+//
+//        chess.performMove("g5g3");
+//
+//        chess.play(chess.getBlack());
 
-        chess.performMove("d1h5");
-        chess.performMove("d7d6");
-
-        chess.performMove("g1f3");
-        chess.performMove("g8f6");
-
-        chess.performMove("h5g5");
-        chess.performMove("c8g4");
-
-        chess.performMove("h2h3");
-        chess.performMove("g4f3");
-
-        chess.performMove("g2f3");
-        chess.performMove("b8c6");
-
-        chess.performMove("f1b5");
-        chess.performMove("a7a6");
-
-        chess.performMove("b5c6");
-        chess.performMove("b7c6");
-
-        chess.performMove("d2d3");
-        chess.performMove("h7h6");
-
-        chess.performMove("g5g3");
-
-        chess.play(chess.getBlack());
+        chess.play(chess.getWhite());
     }
 }
 

@@ -42,31 +42,9 @@ public abstract class Piece {
     }
 
     /**
-     * @param board the board this piece is on.
-     * @return a copy of the piece.
-     */
-    public Piece copy(Board board) {
-        Piece copy = getCopy(board);
-        copy.moves = moves;
-        copy.tile = tile;
-
-        for (int i = 0; i < 6; i++) {
-            copy.prevTiles[i] = prevTiles[i];
-        }
-
-        return copy;
-    }
-
-    /**
      * @return the initial this piece will use to be represented on the board.
      */
     public abstract String getInitial();
-
-    /**
-     * @param board the board this piece will be on.
-     * @return a new copy of the concrete piece.
-     */
-    protected abstract Piece getCopy(Board board);
 
     /**
      * @return the score of this piece.
@@ -101,11 +79,12 @@ public abstract class Piece {
 
             // If we need to check for check, add only the moves that do not result in a check in the future.
             if (checkForCheck) {
-                Board future = board.copy();
-                future.movePiece(new Move(getTile(), tile), false);
-                if (!future.inCheck(isWhite)) {
-                    output.add(new Move(getTile(), tile));
+                Tile oldTile = getTile();
+                board.movePiece(new Move(oldTile, tile), false);
+                if (!board.inCheck(isWhite)) {
+                    output.add(new Move(oldTile, tile));
                 }
+                board.undoMove();
             } else {
                 // Otherwise add the move blindly.
                 output.add(new Move(getTile(), tile));
@@ -204,6 +183,20 @@ public abstract class Piece {
         System.arraycopy(prevTiles, 1, prevTiles, 0, 5);
 
         prevTiles[5] = move.getDestination();
+    }
+
+    /**
+     * Called every time the piece is un-moved. Can be overridden for further functionality.
+     * @param board the board this piece moved in.
+     * @param move the move that was performed.
+     */
+    public void onUnMove(Board board, Move move){
+        moves--;
+
+        // Remove the move from the stale tiles array.
+        System.arraycopy(prevTiles, 0, prevTiles, 1, 5);
+
+        prevTiles[0] = move.getSource();
     }
 
     /**

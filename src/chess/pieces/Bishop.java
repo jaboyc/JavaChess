@@ -26,11 +26,6 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public Piece getCopy(Board board) {
-        return new Bishop(board, isWhite(), null);
-    }
-
-    @Override
     public double getValue() {
         return 3;
     }

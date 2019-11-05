@@ -5,6 +5,7 @@ import chess.Move;
 import chess.Pair;
 
 import java.awt.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -24,18 +25,7 @@ public class CPU extends Player {
     @Override
     public void move(Board board) {
 
-        ArrayList<Pair<Move, Double>> moveScores = getPossibleMoves(board, true).parallelStream().map(move -> {
-            Board future = board.copy();
-            future.movePiece(move, false);
-
-            Pair<Move, Double> moveScore = calculate(future, board.getEnemy(this), COMPLEXITY - 1, move, this);
-
-            if (DEBUG) System.out.println(move + " (" + String.format("%.2f", moveScore.getSecond()) + ")");
-
-            return moveScore;
-        }).collect(Collectors.toCollection(ArrayList::new));
-
-        Pair<Move, Double> highestMove = getBestMove(moveScores);
+        Pair<Move, Double> highestMove = calculate(board, this, COMPLEXITY, null);
 
         // Check for null.
         if (highestMove == null) {
@@ -50,42 +40,7 @@ public class CPU extends Player {
         // Perform the move!
         board.movePiece(highestMove.getFirst());
 
-        if(DEBUG) Toolkit.getDefaultToolkit().beep();
-    }
-
-    /**
-     * Uses artificial intelligence to make a move.
-     * @param player the player making the move.
-     * @param board the board used.
-     */
-    public static void move(Player player, Board board){
-        ArrayList<Pair<Move, Double>> moveScores = player.getPossibleMoves(board, true).parallelStream().map(move -> {
-            Board future = board.copy();
-            future.movePiece(move, false);
-
-            Pair<Move, Double> moveScore = calculate(future, board.getEnemy(player), COMPLEXITY - 1, move, player);
-
-            if (DEBUG) System.out.println(move + " (" + String.format("%.2f", moveScore.getSecond()) + ")");
-
-            return moveScore;
-        }).collect(Collectors.toCollection(ArrayList::new));
-
-        Pair<Move, Double> highestMove = getBestMove(moveScores);
-
-        // Check for null.
-        if (highestMove == null) {
-            System.out.println("NO MOVES LEFT FOR CPU");
-            return;
-        }
-
-        // Print out the move the CPU just did.
-        System.out.println("\n\n");
-        System.out.println(highestMove.getFirst());
-
-        // Perform the move!
-        board.movePiece(highestMove.getFirst());
-
-        if(DEBUG) Toolkit.getDefaultToolkit().beep();
+//        if(DEBUG) Toolkit.getDefaultToolkit().beep();
     }
 
     /**
@@ -95,29 +50,31 @@ public class CPU extends Player {
      * @param layersLeft the number of layers left.
      * @return the move-score with the most likelihood of being chosen.
      */
-    private static Pair<Move, Double> calculate(Board board, Player curr, int layersLeft, Move rootMove, Player scorer) {
+    private Pair<Move, Double> calculate(Board board, Player curr, int layersLeft, Move rootMove) {
 
         ArrayList<Pair<Move, Double>> moveScores = new ArrayList<>();
 
-        for (Move move : curr.getPossibleMoves(board, true)) {
-            Board future = board.copy();
-            future.movePiece(move, false);
+        ArrayList<Move> possibleMoves = curr.getPossibleMoves(board, true);
+        for (Move move : possibleMoves) {
+            board.movePiece(move, false);
 
             if (layersLeft == 0) {
-                moveScores.add(new Pair<>(rootMove, scorer.getScore(future)));
+                moveScores.add(new Pair<>(rootMove, getScore(board)));
             } else {
-                moveScores.add(calculate(future, board.getEnemy(curr), layersLeft - 1, rootMove, scorer));
+                moveScores.add(calculate(board, board.getEnemy(curr), layersLeft - 1, rootMove == null ? move : rootMove));
             }
 
             if(layersLeft == COMPLEXITY && DEBUG){
                 System.out.println(move + " (" + String.format("%.2f",moveScores.get(moveScores.size()-1).getSecond()) + ")");
             }
+
+            board.undoMove();
         }
 
         if(moveScores.isEmpty()){
-            return new Pair<>(rootMove, scorer.getScore(board));
+            return new Pair<>(rootMove, getScore(board));
         }
-        if (curr == scorer) {
+        if (curr == this) {
             return getBestMove(moveScores);
         } else {
             return getWorstMove(moveScores);

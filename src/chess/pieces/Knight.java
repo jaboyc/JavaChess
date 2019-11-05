@@ -26,11 +26,6 @@ public class Knight extends Piece {
     }
 
     @Override
-    public Piece getCopy(Board board) {
-        return new Knight(board,isWhite(), null);
-    }
-
-    @Override
     public double getValue() {
         return 3;
     }

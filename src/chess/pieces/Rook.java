@@ -27,11 +27,6 @@ public class Rook extends Piece {
     }
 
     @Override
-    public Piece getCopy(Board board) {
-        return new Rook(board, isWhite(), null);
-    }
-
-    @Override
     public double getValue() {
         return 5;
     }

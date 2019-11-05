@@ -27,11 +27,6 @@ public class Queen extends Piece {
     }
 
     @Override
-    public Piece getCopy(Board board) {
-        return new Queen(board, isWhite(), null);
-    }
-
-    @Override
     public double getValue() {
         return 8;
     }

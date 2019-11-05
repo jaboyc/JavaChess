@@ -30,11 +30,6 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public Piece getCopy(Board board) {
-        return new Pawn(board, isWhite(), null);
-    }
-
-    @Override
     public double getValue() {
         return 1;
     }
