@@ -12,9 +12,9 @@ import java.util.List;
  */
 public abstract class Piece {
 
-    public static final double MOVE_VALUE = 0.02f; // Multiplier for the value of a piece for the ability to move.
-    public static final double PROTECT_VALUE = 0.1f; // Multiplier for the value of a piece when protecting it.
-    public static final double ATTACK_VALUE = 0.04f; // Multiplier for the value of a piece for the ability to attack an enemy piece.
+    public static final double MOVE_VALUE = 0.04; // Multiplier for the value of a piece for the ability to move.
+    public static final double PROTECT_VALUE = 0.1; // Multiplier for the value of a piece when protecting it.
+    public static final double ACTIVATE_VALUE = 0.3; // Bonus for just activating a piece.
 
     private Tile tile; // The tile this piece is on.
     private boolean isWhite; // Whether this piece is white or black.
@@ -164,13 +164,17 @@ public abstract class Piece {
         double score = getValue();
 
         for (Move move : getPossibleMoves(true)) {
-            if (isEmpty(move.getDestination())) {
+            if (isEmpty(move.getDestination()) || containsEnemyPiece(move.getDestination())) {
                 score += MOVE_VALUE;
-            } else if (containsEnemyPiece(move.getDestination())) {
-                score += board.get(move.getDestination()).getValue() * ATTACK_VALUE;
             } else if (containsAllyPiece(move.getDestination())) {
-                score += board.get(move.getDestination()).getValue() * PROTECT_VALUE;
+                score += PROTECT_VALUE;
             }
+
+
+        }
+
+        if(getMoves() >= 1 && (getInitial().equals("R") || getInitial().equals("B") || getInitial().equals("N") || getInitial().equals("P"))){
+            score += ACTIVATE_VALUE;
         }
 
         score += getBonusScore(board);

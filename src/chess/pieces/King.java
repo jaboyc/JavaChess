@@ -12,8 +12,8 @@ import java.util.List;
  */
 public class King extends Piece {
 
-    private static final double KING_CASTLE_BONUS = 1.5f; // Bonus points for the king not moving.
-    private static final double KING_NESTLED_BONUS = 0.8f; // Bonus points for being surrounded by pieces.
+    private static final double KING_CASTLE_BONUS = 0.5f; // Bonus points for the king not moving.
+    private static final double KING_NESTLED_BONUS = 0.02f; // Bonus points for being surrounded by pieces.
 
     /**
      * Creates a King.

@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class Pawn extends Piece {
 
-    public static final double UP_VALUE = 0.06f; // Multiplier for how far forward the piece is.
+    public static final double UP_VALUE = 0.07; // Multiplier for how far forward the piece is.
 
     /**
      * Creates a Pawn.

@@ -17,8 +17,8 @@ public class Chess {
      * Creates a new Chess game.
      */
     public Chess() {
-        white = new Human(true);
-        black = new CPU(false);
+        white = new CPU(true);
+        black = new Human(false);
 
         board = new Board(this);
     }
@@ -48,10 +48,10 @@ public class Chess {
     /**
      * Starts the chess game.
      */
-    private void play() {
+    private void play(Player start) {
 
         // Start with white.
-        Player currPlayer = white;
+        Player currPlayer = start;
 
         // Start off by printing the board.
         System.out.println(board);
@@ -105,16 +105,36 @@ public class Chess {
 
     public static void main(String[] args) {
         Chess chess = new Chess();
-//        chess.performMove("e2e4");
-//        chess.performMove("e7e5");
-//
-//        chess.performMove("f1c4");
-//        chess.performMove("a7a5");
-//
-//        chess.performMove("c4b3");
-//        chess.performMove("h7h5");
+        chess.performMove("e2e4");
+        chess.performMove("e7e5");
 
-        chess.play();
+        chess.performMove("d1h5");
+        chess.performMove("d7d6");
+
+        chess.performMove("g1f3");
+        chess.performMove("g8f6");
+
+        chess.performMove("h5g5");
+        chess.performMove("c8g4");
+
+        chess.performMove("h2h3");
+        chess.performMove("g4f3");
+
+        chess.performMove("g2f3");
+        chess.performMove("b8c6");
+
+        chess.performMove("f1b5");
+        chess.performMove("a7a6");
+
+        chess.performMove("b5c6");
+        chess.performMove("b7c6");
+
+        chess.performMove("d2d3");
+        chess.performMove("h7h6");
+
+        chess.performMove("g5g3");
+
+        chess.play(chess.getBlack());
     }
 }
 
