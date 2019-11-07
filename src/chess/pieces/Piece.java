@@ -13,8 +13,9 @@ import java.util.List;
 public abstract class Piece {
 
     public static final double MOVE_VALUE = 0.04; // Multiplier for the value of a piece for the ability to move.
-    public static final double PROTECT_VALUE = 0.1; // Multiplier for the value of a piece when protecting it.
-    public static final double ACTIVATE_VALUE = 0.3; // Bonus for just activating a piece.
+    public static final double PROTECT_VALUE = 0.2; // Multiplier for the value of a piece when protecting it.
+    public static final double ACTIVATE_VALUE = 0.12; // Bonus for just activating a piece.
+    public static final double ATTACK_VALUE = 0.2; // Bonus for attacking a piece.
 
     private Tile tile; // The tile this piece is on.
     private boolean isWhite; // Whether this piece is white or black.
@@ -56,7 +57,7 @@ public abstract class Piece {
      *
      * @return the list of tiles it can move in the next turn.
      */
-    protected abstract List<Tile> getPossibleLocations();
+    protected abstract List<Move> getPossibleLocations();
 
     /**
      * Converts the list of tiles this piece can move in into a list of Moves.
@@ -66,32 +67,31 @@ public abstract class Piece {
      */
     public List<Move> getPossibleMoves(boolean checkForCheck) {
 
-        // Check if cached exists.
-        if (checkForCheck && possibleMoves != null) return possibleMoves;
+        if(!checkForCheck && possibleMoves != null) return possibleMoves;
 
         ArrayList<Move> output = new ArrayList<>();
-        for (Tile tile : getPossibleLocations()) {
+        for (Move move: getPossibleLocations()) {
 
             // Don't consider this move if the tile is stale.
-            if (isStale(tile)) {
+            if (isStale(move.getDestination())) {
                 continue;
             }
 
             // If we need to check for check, add only the moves that do not result in a check in the future.
             if (checkForCheck) {
-                Tile oldTile = getTile();
-                board.movePiece(new Move(oldTile, tile), false);
+                board.movePiece(move, false);
                 if (!board.inCheck(isWhite)) {
-                    output.add(new Move(oldTile, tile));
+                    output.add(move);
                 }
                 board.undoMove();
             } else {
                 // Otherwise add the move blindly.
-                output.add(new Move(getTile(), tile));
+                output.add(move);
             }
         }
 
-        if (checkForCheck) possibleMoves = output;
+        if(!checkForCheck) possibleMoves = output;
+
         return output;
     }
 
@@ -147,6 +147,8 @@ public abstract class Piece {
                 score += MOVE_VALUE;
             } else if (containsAllyPiece(move.getDestination())) {
                 score += PROTECT_VALUE;
+            }else if(containsEnemyPiece(move.getDestination())){
+                score += ATTACK_VALUE;
             }
 
 
@@ -197,6 +199,24 @@ public abstract class Piece {
         System.arraycopy(prevTiles, 0, prevTiles, 1, 5);
 
         prevTiles[0] = move.getSource();
+    }
+
+    /**
+     * Returns a move that captures a pawn.
+     * @param tile the tile it will capture on.
+     * @return the move.
+     */
+    protected Move capture(Tile tile){
+        return new Move(this.tile, tile, true);
+    }
+
+    /**
+     * Returns a move that goes to a tile.
+     * @param tile the tile it will move to.
+     * @return the move.
+     */
+    protected Move move(Tile tile){
+        return new Move(this.tile, tile, false);
     }
 
     /**

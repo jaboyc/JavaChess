@@ -32,12 +32,12 @@ public class King extends Piece {
 
     @Override
     public double getValue() {
-        return 0;
+        return 1000;
     }
 
     @Override
-    public List<Tile> getPossibleLocations() {
-        ArrayList<Tile> moves = new ArrayList<>();
+    public List<Move> getPossibleLocations() {
+        ArrayList<Move> moves = new ArrayList<>();
 
         // Check all the spaces directly around the king.
         int[] stepsX = {-1, -1, -1, 0, 1, 1, 1, 0};
@@ -45,8 +45,10 @@ public class King extends Piece {
 
         for (int i = 0; i < 8; i++) {
             Tile tile = getOffset(stepsX[i], stepsY[i]);
-            if (isEmpty(tile) || containsEnemyPiece(tile)) {
-                moves.add(tile);
+            if (isEmpty(tile)) {
+                moves.add(move(tile));
+            } else if(containsEnemyPiece(tile)){
+                moves.add(0, capture(tile));
             }
         }
 
@@ -57,10 +59,10 @@ public class King extends Piece {
 
             // If the board wants us to consider castling, check whether castling is possible.
             if (getMoves() == 0 && canCastleRight(getBoard()) && !inCheck(getBoard())) {
-                moves.add(getRight(2));
+                moves.add(move(getRight(2)));
             }
             if (getMoves() == 0 && canCastleLeft(getBoard()) && !inCheck(getBoard())) {
-                moves.add(getLeft(2));
+                moves.add(move(getLeft(2)));
             }
 
             // Allow the other king to consider castling.
@@ -129,17 +131,17 @@ public class King extends Piece {
         // If the king just castled, adjust the position of the rook.
         if (isWhite()) {
             if (move.getDestination().getX() - move.getSource().getX() == 2) {
-                board.movePiece(new Move(getRight(1), getLeft(1)), false);
+                board.movePiece(new Move(getRight(1), getLeft(1)), false, false);
             }
             if (move.getDestination().getX() - move.getSource().getX() == -2) {
-                board.movePiece(new Move(getLeft(2), getRight(1)), false);
+                board.movePiece(new Move(getLeft(2), getRight(1)), false, false);
             }
         } else {
             if (move.getDestination().getX() - move.getSource().getX() == -2) {
-                board.movePiece(new Move(getRight(2), getLeft(1)), false);
+                board.movePiece(new Move(getRight(2), getLeft(1)), false, false);
             }
             if (move.getDestination().getX() - move.getSource().getX() == 2) {
-                board.movePiece(new Move(getLeft(1), getRight(1)), false);
+                board.movePiece(new Move(getLeft(1), getRight(1)), false, false);
             }
         }
     }
@@ -155,26 +157,26 @@ public class King extends Piece {
             if (move.getDestination().getX() - move.getSource().getX() == 2) {
                 rookMove = new Move(getRight(1), getRight(3));
                 board.get(getRight(1)).onUnMove(board, rookMove);
-                board.movePiece(rookMove, false);
+                board.movePiece(rookMove, false, false);
                 board.get(getRight(3)).onUnMove(board, rookMove);
             }
             if (move.getDestination().getX() - move.getSource().getX() == -2) {
                 rookMove = new Move(getLeft(1), getLeft(4));
                 board.get(getLeft(1)).onUnMove(board, rookMove);
-                board.movePiece(rookMove, false);
+                board.movePiece(rookMove, false, false);
                 board.get(getLeft(4)).onUnMove(board, rookMove);
             }
         } else {
             if (move.getDestination().getX() - move.getSource().getX() == -2) {
                 rookMove = new Move(getRight(1), getRight(4));
                 board.get(getRight(1)).onUnMove(board, rookMove);
-                board.movePiece(rookMove, false);
+                board.movePiece(rookMove, false, false);
                 board.get(getRight(4)).onUnMove(board, rookMove);
             }
             if (move.getDestination().getX() - move.getSource().getX() == 2) {
                 rookMove = new Move(getLeft(1), getLeft(3));
                 board.get(getLeft(1)).onUnMove(board, rookMove);
-                board.movePiece(rookMove, false);
+                board.movePiece(rookMove, false, false);
                 board.get(getLeft(3)).onUnMove(board, rookMove);
             }
         }

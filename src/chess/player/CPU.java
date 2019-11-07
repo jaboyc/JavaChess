@@ -4,8 +4,6 @@ import chess.Board;
 import chess.Move;
 import chess.Pair;
 
-import java.awt.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -25,7 +23,7 @@ public class CPU extends Player {
     @Override
     public void move(Board board) {
 
-        Pair<Move, Double> highestMove = calculate(board, this, COMPLEXITY, null);
+        Pair<Move, Double> highestMove = calculate(board, this, COMPLEXITY, null, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
         // Check for null.
         if (highestMove == null) {
@@ -38,46 +36,71 @@ public class CPU extends Player {
         System.out.println(highestMove.getFirst());
 
         // Perform the move!
-        board.movePiece(highestMove.getFirst());
+        board.movePiece(highestMove.getFirst(), false);
 
 //        if(DEBUG) Toolkit.getDefaultToolkit().beep();
     }
 
     /**
      * Uses minimax algorithm to calculate the move-score the player would most optimally choose.
-     * @param board the board to use.
-     * @param curr the current player.
+     *
+     * @param board      the board to use.
+     * @param curr       the current player.
      * @param layersLeft the number of layers left.
      * @return the move-score with the most likelihood of being chosen.
      */
-    private Pair<Move, Double> calculate(Board board, Player curr, int layersLeft, Move rootMove) {
+    private Pair<Move, Double> calculate(Board board, Player curr, double layersLeft, Move rootMove, double alpha, double beta) {
 
-        ArrayList<Pair<Move, Double>> moveScores = new ArrayList<>();
-
-        ArrayList<Move> possibleMoves = curr.getPossibleMoves(board, true);
-        for (Move move : possibleMoves) {
-            board.movePiece(move, false);
-
-            if (layersLeft == 0) {
-                moveScores.add(new Pair<>(rootMove, getScore(board)));
-            } else {
-                moveScores.add(calculate(board, board.getEnemy(curr), layersLeft - 1, rootMove == null ? move : rootMove));
-            }
-
-            if(layersLeft == COMPLEXITY && DEBUG){
-                System.out.println(move + " (" + String.format("%.2f",moveScores.get(moveScores.size()-1).getSecond()) + ")");
-            }
-
-            board.undoMove();
-        }
-
-        if(moveScores.isEmpty()){
+        if (layersLeft <= 0 || curr.getKing(board) == null || board.getEnemy(curr).getKing(board) == null || !canMove(board)) {
             return new Pair<>(rootMove, getScore(board));
         }
+
+        ArrayList<Move> possibleMoves = curr.getPossibleMoves(board, false);
+
         if (curr == this) {
-            return getBestMove(moveScores);
-        } else {
-            return getWorstMove(moveScores);
+            Pair<Move, Double> bestMove = new Pair<>(null, Double.NEGATIVE_INFINITY);
+
+            for (Move move : possibleMoves) {
+                board.movePiece(move, false);
+
+                double depth = (move.isCapture() || board.inCheck(board.getEnemy(curr))) ? layersLeft - 0.5 : layersLeft - 1;
+
+                Pair<Move, Double> result = calculate(board, board.getEnemy(curr), depth, rootMove == null ? move : rootMove, alpha, beta);
+                bestMove = bestMove.getSecond() > result.getSecond() ? bestMove : result;
+
+                board.undoMove();
+
+                if (layersLeft == COMPLEXITY && DEBUG) {
+                    System.out.println(move + " (" + String.format("%.2f", result.getSecond()) + ")");
+                }
+
+                alpha = Math.max(alpha, result.getSecond());
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+
+            return bestMove;
+        }else{
+            Pair<Move, Double> worstMove = new Pair<>(null, Double.POSITIVE_INFINITY);
+
+            for (Move move : possibleMoves) {
+                board.movePiece(move, false);
+
+                double depth = (move.isCapture() || board.inCheck(board.getEnemy(curr))) ? layersLeft - 0.5 : layersLeft - 1;
+
+                Pair<Move, Double> result = calculate(board, board.getEnemy(curr), depth, rootMove == null ? move : rootMove, alpha, beta);
+                worstMove = worstMove.getSecond() < result.getSecond() ? worstMove : result;
+
+                board.undoMove();
+
+                beta = Math.min(beta, result.getSecond());
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+
+            return worstMove;
         }
     }
 

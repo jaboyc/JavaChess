@@ -35,25 +35,25 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public List<Tile> getPossibleLocations() {
-        ArrayList<Tile> moves = new ArrayList<>();
+    public List<Move> getPossibleLocations() {
+        ArrayList<Move> moves = new ArrayList<>();
 
         // Check the space in front of it.
         if (isEmpty(getForward(1))) {
-            moves.add(getForward(1));
+            moves.add(move(getForward(1)));
 
             // If the space in front of it is empty, check two spaces in front of it only if it hasn't moved yet.
             if (isEmpty(getForward(2)) && getMoves() == 0) {
-                moves.add(getForward(2));
+                moves.add(move(getForward(2)));
             }
         }
 
         // Check the diagonals for attacking.
         if (containsEnemyPiece(getNEDiagonal(1))) {
-            moves.add(getNEDiagonal(1));
+            moves.add(0,capture(getNEDiagonal(1)));
         }
         if (containsEnemyPiece(getNWDiagonal(1))) {
-            moves.add(getNWDiagonal(1));
+            moves.add(0,capture(getNWDiagonal(1)));
         }
 
         return moves;
