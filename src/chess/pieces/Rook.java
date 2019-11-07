@@ -1,6 +1,7 @@
 package chess.pieces;
 
 import chess.Board;
+import chess.Move;
 import chess.Tile;
 
 import java.util.ArrayList;
@@ -32,56 +33,56 @@ public class Rook extends Piece {
     }
 
     @Override
-    public List<Tile> getPossibleLocations() {
-        ArrayList<Tile> moves = new ArrayList<>();
+    public List<Move> getPossibleLocations() {
+        ArrayList<Move> moves = new ArrayList<>();
 
         // Check all the rows and files.
         for (int i = 1; i < 8; i++) {
             if (containsEnemyPiece(getForward(i))) {
-                moves.add(getForward(i));
+                moves.add(0,capture(getForward(i)));
             }
 
             if (!isEmpty(getForward(i))) {
                 break;
             }
 
-            moves.add(getForward(i));
+            moves.add(move(getForward(i)));
         }
 
         for (int i = 1; i < 8; i++) {
             if (containsEnemyPiece(getBackward(i))) {
-                moves.add(getBackward(i));
+                moves.add(0,capture(getBackward(i)));
             }
 
             if (!isEmpty(getBackward(i))) {
                 break;
             }
 
-            moves.add(getBackward(i));
+            moves.add(move(getBackward(i)));
         }
 
         for (int i = 1; i < 8; i++) {
             if (containsEnemyPiece(getRight(i))) {
-                moves.add(getRight(i));
+                moves.add(0,capture(getRight(i)));
             }
 
             if (!isEmpty(getRight(i))) {
                 break;
             }
 
-            moves.add(getRight(i));
+            moves.add(move(getRight(i)));
         }
 
         for (int i = 1; i < 8; i++) {
             if (containsEnemyPiece(getLeft(i))) {
-                moves.add(getLeft(i));
+                moves.add(0,capture(getLeft(i)));
             }
 
             if (!isEmpty(getLeft(i))) {
                 break;
             }
 
-            moves.add(getLeft(i));
+            moves.add(move(getLeft(i)));
         }
 
         return moves;

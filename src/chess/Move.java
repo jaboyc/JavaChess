@@ -10,15 +10,26 @@ public class Move{
     private Tile dest; // The destination tile.
 
     private Piece removedPiece; // The piece this move removed. Null if none.
+    private boolean capture; // Whether the move resulted in a capture.
 
     /**
      * Creates a new move.
      * @param src the source tile.
      * @param dest the destination tile.
      */
-    public Move(Tile src, Tile dest) {
+    public Move(Tile src, Tile dest, boolean capture) {
         this.src = src;
         this.dest = dest;
+        this.capture = capture;
+    }
+
+    /**
+     * Creates a new move.
+     * @param src the source tile.
+     * @param dest the destination tile.
+     */
+    public Move(Tile src, Tile dest){
+        this(src, dest, false);
     }
 
 
@@ -48,5 +59,9 @@ public class Move{
 
     public Tile getDestination() {
         return dest;
+    }
+
+    public boolean isCapture() {
+        return capture;
     }
 }

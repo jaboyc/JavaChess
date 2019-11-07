@@ -13,8 +13,6 @@ import java.util.Stack;
 public class Board {
     private Chess chess; // The chess game manager attached to this board.
 
-    private ArrayList<Piece> pieces; // List of pieces on the board.
-
     private ArrayList<Piece> whitePieces; // Cached white pieces.
     private ArrayList<Piece> blackPieces; // Cached black pieces.
 
@@ -35,11 +33,13 @@ public class Board {
     public Board(Chess chess) {
         this.chess = chess;
 
-        pieces = new ArrayList<>();
+        whitePieces = new ArrayList<>();
+        blackPieces = new ArrayList<>();
+        pieceGrid = new Piece[8][8];
+
         history = new Stack<>();
 
         placePieces();
-        constructGrid();
     }
 
     /**
@@ -47,7 +47,6 @@ public class Board {
      * @return the piece represented on the tile. Null if not found.
      */
     public Piece get(Tile tile) {
-        if(pieceGrid == null) constructGrid();
         return pieceGrid[tile.getX()-1][tile.getY()-1];
     }
 
@@ -57,7 +56,6 @@ public class Board {
      * @return the piece represented by the coordinate. Null if not found.
      */
     public Piece get(int x, int y) {
-        if(pieceGrid == null) constructGrid();
         return pieceGrid[x-1][y-1];
     }
 
@@ -68,7 +66,17 @@ public class Board {
      * @return whether the move was applied.
      */
     public boolean movePiece(Move move) {
-        return movePiece(move, true);
+        return movePiece(move, true, true);
+    }
+
+    /**
+     * Moves the piece from srcTile to destTile.
+     * @param move the move to perform.
+     * @param checkValid whether to check if the move is valid.
+     * @return whether the move was applied.
+     */
+    public boolean movePiece(Move move, boolean checkValid){
+        return movePiece(move, checkValid, true);
     }
 
     /**
@@ -78,7 +86,7 @@ public class Board {
      * @param checkValid check whether the piece is able to move there. If false, moves the piece there without checking.
      * @return whether the move was applied.
      */
-    public boolean movePiece(Move move, boolean checkValid) {
+    public boolean movePiece(Move move, boolean checkValid, boolean addToHistory) {
 
         // Get the piece to move.
         Piece piece = get(move.getSource());
@@ -101,18 +109,18 @@ public class Board {
         move.setRemovedPiece(removePiece(move.getDestination()));
 
         // Move the piece from the source tile to the destination tile.
+        pieceGrid[piece.getTile().getX()-1][piece.getTile().getY()-1] = null;
         piece.moveTo(move.getDestination());
+        pieceGrid[piece.getTile().getX()-1][piece.getTile().getY()-1] = piece;
 
         // Trigger onMove for the moved piece.
         piece.onMove(this, move);
 
         // Add the move to history.
-        history.push(move);
+        if(addToHistory) history.push(move);
 
         // Clear the caches.
-        clearGridCache();
         clearPiecesCache();
-        clearPlayerPiecesCache();
         clearScoreCache();
 
         return true;
@@ -130,7 +138,9 @@ public class Board {
         Piece piece = get(move.getDestination());
 
         // Move the piece from the source tile to the destination tile.
+        pieceGrid[piece.getTile().getX()-1][piece.getTile().getY()-1] = null;
         piece.moveTo(move.getSource());
+        pieceGrid[piece.getTile().getX() - 1][piece.getTile().getY()-1] = piece;
 
         // If we removed a piece, place it back.
         if(move.getRemovedPiece() != null){
@@ -141,9 +151,7 @@ public class Board {
         piece.onUnMove(this, move);
 
         // Clear the caches.
-        clearGridCache();
         clearPiecesCache();
-        clearPlayerPiecesCache();
         clearScoreCache();
     }
 
@@ -192,26 +200,11 @@ public class Board {
      * @return the list of pieces that player has.
      */
     public List<Piece> getPieces(boolean isWhite) {
-        // Check if cached pieces exist.
         if(isWhite){
-            if(whitePieces != null) return whitePieces;
+           return whitePieces;
         }else{
-            if(blackPieces != null) return blackPieces;
+            return blackPieces;
         }
-
-        ArrayList<Piece> output = new ArrayList<>();
-        for(Piece piece : pieces){
-            if(piece.isWhite() == isWhite) output.add(piece);
-        }
-
-        // Save to cache.
-        if(isWhite){
-            whitePieces = output;
-        }else{
-            blackPieces = output;
-        }
-
-        return output;
     }
 
     /**
@@ -230,11 +223,11 @@ public class Board {
         }
 
         // Check for checkmates first.
-        if (!getEnemy(player).canMove(this)) {
+        if (getEnemy(player).getKing(this) == null || !getEnemy(player).canMove(this)) {
             return 1000;
         }
 
-        if (!player.canMove(this)) {
+        if (player.getKing(this) == null || !player.canMove(this)) {
             return -1000;
         }
 
@@ -243,6 +236,8 @@ public class Board {
         for(Piece piece : getPieces(player)){
             score += piece.getScore();
         }
+
+        score -= 1000;
 
         // Cache the score.
         if (player.isWhite()) {
@@ -272,10 +267,13 @@ public class Board {
         Piece piece = get(tile);
         if (piece == null) return null;
 
-        pieces.remove(piece);
+        if(piece.isWhite()){
+            whitePieces.remove(piece);
+        }else{
+            blackPieces.remove(piece);
+        }
+        pieceGrid[piece.getTile().getX()-1][piece.getTile().getY() - 1] = null;
 
-        clearGridCache();
-        clearPlayerPiecesCache();
         clearPiecesCache();
 
         return piece;
@@ -287,10 +285,13 @@ public class Board {
      * @param piece the piece to add.
      */
     public void addPiece(Piece piece) {
-        pieces.add(piece);
+        if(piece.isWhite()){
+            whitePieces.add(piece);
+        }else{
+            blackPieces.add(piece);
+        }
+        pieceGrid[piece.getTile().getX() - 1][piece.getTile().getY() - 1] = piece;
 
-        clearGridCache();
-        clearPlayerPiecesCache();
         clearPiecesCache();
     }
 
@@ -300,66 +301,40 @@ public class Board {
     private void placePieces() {
 
         // Place white's pieces.
-        pieces.add(new Rook(this, true, Tile.pos(1, 1)));
-        pieces.add(new Knight(this, true, Tile.pos(2, 1)));
-        pieces.add(new Bishop(this, true, Tile.pos(3, 1)));
-        pieces.add(new Queen(this, true, Tile.pos(4, 1)));
-        pieces.add(new King(this, true, Tile.pos(5, 1)));
-        pieces.add(new Bishop(this, true, Tile.pos(6, 1)));
-        pieces.add(new Knight(this, true, Tile.pos(7, 1)));
-        pieces.add(new Rook(this, true, Tile.pos(8, 1)));
+        addPiece(new Rook(this, true, Tile.pos(1, 1)));
+        addPiece(new Knight(this, true, Tile.pos(2, 1)));
+        addPiece(new Bishop(this, true, Tile.pos(3, 1)));
+        addPiece(new Queen(this, true, Tile.pos(4, 1)));
+        addPiece(new King(this, true, Tile.pos(5, 1)));
+        addPiece(new Bishop(this, true, Tile.pos(6, 1)));
+        addPiece(new Knight(this, true, Tile.pos(7, 1)));
+        addPiece(new Rook(this, true, Tile.pos(8, 1)));
         for (int i = 0; i < 8; i++) {
-            pieces.add(new Pawn(this, true, Tile.pos(i + 1, 2)));
+            addPiece(new Pawn(this, true, Tile.pos(i + 1, 2)));
         }
 
         // Place black's pieces.
-        pieces.add(new Rook(this, false, Tile.pos(1, 8)));
-        pieces.add(new Knight(this, false, Tile.pos(2, 8)));
-        pieces.add(new Bishop(this, false, Tile.pos(3, 8)));
-        pieces.add(new Queen(this, false, Tile.pos(4, 8)));
-        pieces.add(new King(this, false, Tile.pos(5, 8)));
-        pieces.add(new Bishop(this, false, Tile.pos(6, 8)));
-        pieces.add(new Knight(this, false, Tile.pos(7, 8)));
-        pieces.add(new Rook(this, false, Tile.pos(8, 8)));
+        addPiece(new Rook(this, false, Tile.pos(1, 8)));
+        addPiece(new Knight(this, false, Tile.pos(2, 8)));
+        addPiece(new Bishop(this, false, Tile.pos(3, 8)));
+        addPiece(new Queen(this, false, Tile.pos(4, 8)));
+        addPiece(new King(this, false, Tile.pos(5, 8)));
+        addPiece(new Bishop(this, false, Tile.pos(6, 8)));
+        addPiece(new Knight(this, false, Tile.pos(7, 8)));
+        addPiece(new Rook(this, false, Tile.pos(8, 8)));
         for (int i = 0; i < 8; i++) {
-            pieces.add(new Pawn(this, false, Tile.pos(i + 1, 7)));
+            addPiece(new Pawn(this, false, Tile.pos(i + 1, 7)));
         }
-    }
-
-    /**
-     * Constructs the grid of pieces based on the current layout.
-     */
-    private void constructGrid(){
-        pieceGrid = new Piece[8][8];
-
-        for(Piece piece : pieces){
-            if(piece == null){
-                System.out.println(pieces);
-            }
-            pieceGrid[piece.getTile().getX()-1][piece.getTile().getY()-1] = piece;
-        }
-    }
-
-    /**
-     * Cleans the grid cache.
-     */
-    private void clearGridCache(){
-        pieceGrid = null;
-    }
-
-    /**
-     * Cleans the players' piece cache.
-     */
-    private void clearPlayerPiecesCache(){
-        whitePieces = null;
-        blackPieces = null;
     }
 
     /**
      * Clears the caches of all the pieces.
      */
     private void clearPiecesCache(){
-        for(Piece piece : pieces){
+        for(Piece piece : whitePieces){
+            piece.clearPossibleMovesCache();
+        }
+        for(Piece piece : blackPieces){
             piece.clearPossibleMovesCache();
         }
     }

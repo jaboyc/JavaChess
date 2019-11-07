@@ -1,6 +1,7 @@
 package chess.pieces;
 
 import chess.Board;
+import chess.Move;
 import chess.Tile;
 
 import java.util.ArrayList;
@@ -32,97 +33,97 @@ public class Queen extends Piece {
     }
 
     @Override
-    public List<Tile> getPossibleLocations() {
-        ArrayList<Tile> moves = new ArrayList<>();
+    public List<Move> getPossibleLocations() {
+        ArrayList<Move> moves = new ArrayList<>();
 
         // Check all the diagonals.
         for (int i = 1; i < 8; i++) {
             if (containsEnemyPiece(getNEDiagonal(i))) {
-                moves.add(getNEDiagonal(i));
+                moves.add(0,capture(getNEDiagonal(i)));
             }
 
             if (!isEmpty(getNEDiagonal(i))) {
                 break;
             }
-            moves.add(getNEDiagonal(i));
+            moves.add(move(getNEDiagonal(i)));
         }
 
         for (int i = 1; i < 8; i++) {
             if (containsEnemyPiece(getNWDiagonal(i))) {
-                moves.add(getNWDiagonal(i));
+                moves.add(0,capture(getNWDiagonal(i)));
             }
 
             if (!isEmpty(getNWDiagonal(i))) {
                 break;
             }
-            moves.add(getNWDiagonal(i));
+            moves.add(move(getNWDiagonal(i)));
         }
 
         for (int i = 1; i < 8; i++) {
             if (containsEnemyPiece(getSEDiagonal(i))) {
-                moves.add(getSEDiagonal(i));
+                moves.add(0,capture(getSEDiagonal(i)));
             }
 
             if (!isEmpty(getSEDiagonal(i))) {
                 break;
             }
-            moves.add(getSEDiagonal(i));
+            moves.add(move(getSEDiagonal(i)));
         }
 
         for (int i = 1; i < 8; i++) {
             if (containsEnemyPiece(getSWDiagonal(i))) {
-                moves.add(getSWDiagonal(i));
+                moves.add(0,capture(getSWDiagonal(i)));
             }
 
             if (!isEmpty(getSWDiagonal(i))) {
                 break;
             }
-            moves.add(getSWDiagonal(i));
+            moves.add(move(getSWDiagonal(i)));
         }
 
         // Check all the rows and files.
         for (int i = 1; i < 8; i++) {
             if (containsEnemyPiece(getForward(i))) {
-                moves.add(getForward(i));
+                moves.add(0,capture(getForward(i)));
             }
 
             if (!isEmpty(getForward(i))) {
                 break;
             }
-            moves.add(getForward(i));
+            moves.add(move(getForward(i)));
         }
 
         for (int i = 1; i < 8; i++) {
             if (containsEnemyPiece(getBackward(i))) {
-                moves.add(getBackward(i));
+                moves.add(0,capture(getBackward(i)));
             }
 
             if (!isEmpty(getBackward(i))) {
                 break;
             }
-            moves.add(getBackward(i));
+            moves.add(move(getBackward(i)));
         }
 
         for (int i = 1; i < 8; i++) {
             if (containsEnemyPiece(getRight(i))) {
-                moves.add(getRight(i));
+                moves.add(0,capture(getRight(i)));
             }
 
             if (!isEmpty(getRight(i))) {
                 break;
             }
-            moves.add(getRight(i));
+            moves.add(move(getRight(i)));
         }
 
         for (int i = 1; i < 8; i++) {
             if (containsEnemyPiece(getLeft(i))) {
-                moves.add(getLeft(i));
+                moves.add(0,capture(getLeft(i)));
             }
 
             if (!isEmpty(getLeft(i))) {
                 break;
             }
-            moves.add(getLeft(i));
+            moves.add(move(getLeft(i)));
         }
 
         return moves;

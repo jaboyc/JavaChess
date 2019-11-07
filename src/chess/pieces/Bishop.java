@@ -1,6 +1,7 @@
 package chess.pieces;
 
 import chess.Board;
+import chess.Move;
 import chess.Tile;
 
 import java.util.ArrayList;
@@ -13,8 +14,9 @@ public class Bishop extends Piece {
 
     /**
      * Creates a Bishop.
+     *
      * @param isWhite whether it is white or black.
-     * @param tile the tile it is on.
+     * @param tile    the tile it is on.
      */
     public Bishop(Board board, boolean isWhite, Tile tile) {
         super(board, isWhite, tile);
@@ -31,56 +33,52 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public List<Tile> getPossibleLocations() {
-        ArrayList<Tile> moves = new ArrayList<>();
+    public List<Move> getPossibleLocations() {
+        ArrayList<Move> moves = new ArrayList<>();
 
         // Look at all diagonals.
-        for(int i=1;i<8;i++){
-//            if(i == 1 && getNEDiagonal(board, i) != null && getNEDiagonal(board, i).getPiece() != null && getNEDiagonal(board, i).getPiece().getInitial().equals("K")){
-//                System.out.println("Somehow got here!!!");
-//
-//            }
-            if(containsEnemyPiece(getNEDiagonal( i))){
-                moves.add(getNEDiagonal( i));
+        for (int i = 1; i < 8; i++) {
+            if (containsEnemyPiece(getNEDiagonal(i))) {
+                moves.add(0,capture(getNEDiagonal(i)));
             }
 
-            if(!isEmpty(getNEDiagonal( i))){
+            if (!isEmpty(getNEDiagonal(i))) {
                 break;
             }
-            moves.add(getNEDiagonal( i));
+            moves.add(move(getNEDiagonal(i)));
         }
 
-        for(int i=1;i<8;i++){
-            if(containsEnemyPiece(getNWDiagonal( i))){
-                moves.add(getNWDiagonal( i));
+        for (int i = 1; i < 8; i++) {
+            if (containsEnemyPiece(getNWDiagonal(i))) {
+                moves.add(0, capture(getNWDiagonal(i)));
             }
 
-            if(!isEmpty(getNWDiagonal( i))){
+            if (!isEmpty(getNWDiagonal(i))) {
                 break;
             }
-            moves.add(getNWDiagonal( i));
+            moves.add(move(getNWDiagonal(i)));
         }
 
-        for(int i=1;i<8;i++){
-            if(containsEnemyPiece(getSEDiagonal( i))){
-                moves.add(getSEDiagonal( i));
+        for (int i = 1; i < 8; i++) {
+            if (containsEnemyPiece(getSEDiagonal(i))) {
+                moves.add(0, capture(getSEDiagonal(i)));
             }
 
-            if(!isEmpty(getSEDiagonal( i))){
+            if (!isEmpty(getSEDiagonal(i))) {
                 break;
             }
-            moves.add(getSEDiagonal( i));
+            moves.add(move(getSEDiagonal(i)));
         }
 
-        for(int i=1;i<8;i++){
-            if(containsEnemyPiece(getSWDiagonal( i))){
-                moves.add(getSWDiagonal( i));
+        for (int i = 1; i < 8; i++) {
+            if (containsEnemyPiece(getSWDiagonal(i))) {
+                moves.add(0, capture(getSWDiagonal(i)));
             }
 
-            if(!isEmpty(getSWDiagonal( i))){
+            if (!isEmpty(getSWDiagonal(i))) {
                 break;
             }
-            moves.add(getSWDiagonal( i));
+            moves.add(move(getSWDiagonal(i)));
         }
 
         return moves;

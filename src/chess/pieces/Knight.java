@@ -1,6 +1,7 @@
 package chess.pieces;
 
 import chess.Board;
+import chess.Move;
 import chess.Tile;
 
 import java.util.ArrayList;
@@ -31,8 +32,8 @@ public class Knight extends Piece {
     }
 
     @Override
-    public List<Tile> getPossibleLocations() {
-        ArrayList<Tile> moves = new ArrayList<>();
+    public List<Move> getPossibleLocations() {
+        ArrayList<Move> moves = new ArrayList<>();
 
         // Check all L-shaped locations around the knight.
         int[] stepsX = {1, 1, 2, 2, -1, -1, -2, -2};
@@ -40,8 +41,10 @@ public class Knight extends Piece {
 
         for(int i=0;i<8;i++){
             Tile tile = getOffset( stepsX[i], stepsY[i]);
-            if(isEmpty(tile) || containsEnemyPiece(tile)){
-                moves.add(tile);
+            if(isEmpty(tile)){
+                moves.add(move(tile));
+            }else if(containsEnemyPiece(tile)){
+                moves.add(0, capture(tile));
             }
         }
 
