@@ -13,7 +13,6 @@ import java.util.List;
 public class King extends Piece {
 
     private static final double KING_CASTLE_BONUS = 0.5f; // Bonus points for the king not moving.
-    private static final double KING_NESTLED_BONUS = 0.02f; // Bonus points for being surrounded by pieces.
 
     /**
      * Creates a King.
@@ -76,21 +75,10 @@ public class King extends Piece {
     protected double getBonusScore(Board board) {
         double bonus = 0f;
 
-        if (getMoves() == 0 && canCastleRight(board))
-            bonus += KING_CASTLE_BONUS;
-        if (getMoves() == 0 && canCastleLeft(board))
-            bonus += KING_CASTLE_BONUS;
-
-        // Check all the spaces directly around the king.
-        int[] stepsX = {-1, -1, -1, 0, 1, 1, 1, 0};
-        int[] stepsY = {-1, 0, 1, 1, 1, 0, -1, -1};
-
-        for (int i = 0; i < 8; i++) {
-            Tile tile = getOffset(stepsX[i], stepsY[i]);
-            if (tile == null || containsAllyPiece(tile)) {
-                bonus += KING_NESTLED_BONUS;
-            }
-        }
+//        if (getMoves() == 0 && canCastleRight(board))
+//            bonus += KING_CASTLE_BONUS;
+//        if (getMoves() == 0 && canCastleLeft(board))
+//            bonus += KING_CASTLE_BONUS;
 
         return bonus;
     }

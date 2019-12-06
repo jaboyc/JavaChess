@@ -4,6 +4,8 @@ import chess.player.CPU;
 import chess.player.Human;
 import chess.player.Player;
 
+import java.util.stream.Collectors;
+
 /**
  * Manages the chess game.
  */
@@ -69,6 +71,8 @@ public class Chess {
             System.out.println(board);
         }
 
+        System.out.println(board.get(4,1));
+
         System.out.println("==========( " + (currPlayer == white ? "BLACK" : "WHITE") + " WON )==========");
     }
 
@@ -100,46 +104,53 @@ public class Chess {
 
     public static void main(String[] args) {
         Chess chess = new Chess();
-        chess.performMove("e2e4");
-        chess.performMove("e7e5");
-
-        chess.performMove("d1h5");
-        chess.performMove("d7d6");
-
-        chess.performMove("g1f3");
-        chess.performMove("g8f6");
-
-        chess.performMove("h5g5");
-        chess.performMove("c8g4");
-
-        chess.performMove("h2h3");
-        chess.performMove("g4f3");
-
-        chess.performMove("g2f3");
-        chess.performMove("b8c6");
-
-        chess.performMove("f1b5");
-        chess.performMove("a7a6");
-
-        chess.performMove("b5c6");
-        chess.performMove("b7c6");
-
-        chess.performMove("d2d3");
-        chess.performMove("h7h6");
-
-        // Test pawn promotion
-        chess.performMove("b2b4");
-        chess.performMove("d6d5");
-
-        chess.performMove("b4b5");
-        chess.performMove("d5e4");
-
-        chess.performMove("b5b6");
-        chess.performMove("e4d3");
-
-        chess.performMove("b6b7");
-        chess.performMove("d3c2");
-
+//        chess.performMove("e2e4");
+//        chess.performMove("e7e5");
+//
+//        chess.performMove("d1h5");
+//        chess.performMove("d7d6");
+//
+//        chess.performMove("g1f3");
+//        chess.performMove("g8f6");
+//
+//        chess.performMove("h5g5");
+//        chess.performMove("c8g4");
+//
+//        chess.performMove("h2h3");
+//        chess.performMove("g4f3");
+//
+//        chess.performMove("g2f3");
+//        chess.performMove("b8c6");
+//
+//        chess.performMove("f1b5");
+//        chess.performMove("a7a6");
+//
+//        chess.performMove("b5c6");
+//        chess.performMove("b7c6");
+//
+//        chess.performMove("d2d3");
+//        chess.performMove("h7h6");
+//
+//        chess.performMove("b2b4");
+//        chess.performMove("d6d5");
+//
+//        chess.performMove("b4b5");
+//        chess.performMove("d5e4");
+//
+//        chess.performMove("b5b6");
+//        chess.performMove("e4d3");
+//
+//        chess.performMove("b6b7");
+//        chess.performMove("d3c2");
+//
+//        chess.performMove("g5e5");
+//        chess.performMove("f8e7");
+//
+//        chess.performMove("b1c3");
+//        chess.performMove("d8d1");
+//
+//        chess.performMove("c3d1");
+//
 //        chess.play(chess.getBlack());
 
         chess.play(chess.getWhite());
@@ -150,7 +161,6 @@ public class Chess {
 Current limitations
 
 1. NO En passant.
-2. You CAN castle the king even if he has been checked before.
-3. You CAN castle THROUGH check.
-4. Pawns are ONLY upgraded to queens.
+2. You CAN castle THROUGH check.
+3. Pawns are ONLY promoted to queens.
  */

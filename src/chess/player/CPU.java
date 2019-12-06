@@ -14,7 +14,7 @@ public class CPU extends Player {
 
     private static final boolean DEBUG = true;
 
-    private static final int COMPLEXITY = 2; // The number of its turns it looks ahead in the future to decide its next move.
+    private static final int COMPLEXITY = 3; // The number of its turns it looks ahead in the future to decide its next move.
 
     public CPU(boolean isWhite) {
         super(isWhite);
@@ -26,7 +26,7 @@ public class CPU extends Player {
         Pair<Move, Double> highestMove = calculate(board, this, COMPLEXITY, null, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
         // Check for null.
-        if (highestMove == null) {
+        if (highestMove == null || highestMove.getFirst() == null) {
             System.out.println("NO MOVES LEFT FOR CPU");
             return;
         }
@@ -51,11 +51,11 @@ public class CPU extends Player {
      */
     private Pair<Move, Double> calculate(Board board, Player curr, double layersLeft, Move rootMove, double alpha, double beta) {
 
-        if (layersLeft <= 0 || curr.getKing(board) == null || board.getEnemy(curr).getKing(board) == null || !canMove(board)) {
+        if (layersLeft <= 0 || getKing(board) == null || board.getEnemy(this).getKing(board) == null || !canMove(board) || !board.getEnemy(this).canMove(board)) {
             return new Pair<>(rootMove, getScore(board));
         }
 
-        ArrayList<Move> possibleMoves = curr.getPossibleMoves(board, false);
+        ArrayList<Move> possibleMoves = curr.getPossibleMoves(board, true);
 
         if (curr == this) {
             Pair<Move, Double> bestMove = new Pair<>(null, Double.NEGATIVE_INFINITY);

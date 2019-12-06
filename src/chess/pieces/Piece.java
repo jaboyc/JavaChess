@@ -67,7 +67,7 @@ public abstract class Piece {
      */
     public List<Move> getPossibleMoves(boolean checkForCheck) {
 
-        if(!checkForCheck && possibleMoves != null) return possibleMoves;
+//        if(checkForCheck && possibleMoves != null) return possibleMoves;
 
         ArrayList<Move> output = new ArrayList<>();
         for (Move move: getPossibleLocations()) {
@@ -90,7 +90,7 @@ public abstract class Piece {
             }
         }
 
-        if(!checkForCheck) possibleMoves = output;
+        if(checkForCheck) possibleMoves = output;
 
         return output;
     }
@@ -150,8 +150,6 @@ public abstract class Piece {
             }else if(containsEnemyPiece(move.getDestination())){
                 score += ATTACK_VALUE;
             }
-
-
         }
 
         if(getMoves() >= 1 && (getInitial().equals("R") || getInitial().equals("B") || getInitial().equals("N") || getInitial().equals("P"))){

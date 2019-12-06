@@ -63,19 +63,6 @@ public class Pawn extends Piece {
     protected double getBonusScore(Board board) {
         double bonus = 0;
 
-        if (isEmpty(getNEDiagonal(1))) {
-            bonus += Piece.MOVE_VALUE;
-        }
-        if (isEmpty(getNWDiagonal(1))) {
-            bonus += Piece.MOVE_VALUE;
-        }
-
-        if (isWhite()) {
-            bonus += (getTile().getY() - 2) * UP_VALUE;
-        } else {
-            bonus += (7 - getTile().getY()) * UP_VALUE;
-        }
-
         return bonus;
     }
 

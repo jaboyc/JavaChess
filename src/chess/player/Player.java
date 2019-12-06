@@ -34,7 +34,7 @@ public abstract class Player {
         ArrayList<Move> possibleMoves = new ArrayList<>();
 
         List<Piece> pieces = board.getPieces(this); // Store list beforehand to prevent ConcurrentModificationException.
-        for (int i = 0; i < pieces.size(); i++) {
+        for (int i = pieces.size() - 1; i >= 0; i--) { // Go through the pieces backwards because otherwise... it doesn't work? Found strange cases where the for loop going forwards skips some possible moves. I do not know why.
             Piece piece = pieces.get(i);
             possibleMoves.addAll(piece.getPossibleMoves(checkForCheck));
         }
