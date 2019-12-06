@@ -100,35 +100,46 @@ public class Chess {
 
     public static void main(String[] args) {
         Chess chess = new Chess();
-//        chess.performMove("e2e4");
-//        chess.performMove("e7e5");
-//
-//        chess.performMove("d1h5");
-//        chess.performMove("d7d6");
-//
-//        chess.performMove("g1f3");
-//        chess.performMove("g8f6");
-//
-//        chess.performMove("h5g5");
-//        chess.performMove("c8g4");
-//
-//        chess.performMove("h2h3");
-//        chess.performMove("g4f3");
-//
-//        chess.performMove("g2f3");
-//        chess.performMove("b8c6");
-//
-//        chess.performMove("f1b5");
-//        chess.performMove("a7a6");
-//
-//        chess.performMove("b5c6");
-//        chess.performMove("b7c6");
-//
-//        chess.performMove("d2d3");
-//        chess.performMove("h7h6");
-//
-//        chess.performMove("g5g3");
-//
+        chess.performMove("e2e4");
+        chess.performMove("e7e5");
+
+        chess.performMove("d1h5");
+        chess.performMove("d7d6");
+
+        chess.performMove("g1f3");
+        chess.performMove("g8f6");
+
+        chess.performMove("h5g5");
+        chess.performMove("c8g4");
+
+        chess.performMove("h2h3");
+        chess.performMove("g4f3");
+
+        chess.performMove("g2f3");
+        chess.performMove("b8c6");
+
+        chess.performMove("f1b5");
+        chess.performMove("a7a6");
+
+        chess.performMove("b5c6");
+        chess.performMove("b7c6");
+
+        chess.performMove("d2d3");
+        chess.performMove("h7h6");
+
+        // Test pawn promotion
+        chess.performMove("b2b4");
+        chess.performMove("d6d5");
+
+        chess.performMove("b4b5");
+        chess.performMove("d5e4");
+
+        chess.performMove("b5b6");
+        chess.performMove("e4d3");
+
+        chess.performMove("b6b7");
+        chess.performMove("d3c2");
+
 //        chess.play(chess.getBlack());
 
         chess.play(chess.getWhite());

@@ -91,13 +91,7 @@ public class Board {
         // Get the piece to move.
         Piece piece = get(move.getSource());
         if (piece == null) {
-            System.out.println(this);
-            System.out.println("Attempted " + move);
-            System.out.println("Previous moves: " + history);
-            System.out.println("CheckValid? " + checkValid);
-            System.out.println("Something went wrong");
-            throw new Error();
-//            return false;
+            return false;
         }
 
         // If we want to check whether the move is valid, and the move is invalid for the piece, don't do anything.
@@ -136,6 +130,18 @@ public class Board {
 
         // Get the piece that was moved at that spot.
         Piece piece = get(move.getDestination());
+
+        // If the last move was a pawn promotion, undo the promotion by removing the queen and placing a pawn.
+        if(move.getPromotedPawn() != null){
+            Pawn promotedPawn = move.getPromotedPawn();
+
+            // Remove the queen from the current tile.
+            removePiece(piece.getTile());
+
+            // Add the pawn back.
+            addPiece(promotedPawn);
+            piece = promotedPawn;
+        }
 
         // Move the piece from the source tile to the destination tile.
         pieceGrid[piece.getTile().getX()-1][piece.getTile().getY()-1] = null;
@@ -233,7 +239,10 @@ public class Board {
 
         // Calculate total score of each piece.
         double score = 0;
-        for(Piece piece : getPieces(player)){
+
+        List<Piece> pieces = getPieces(player);
+        for(int i=0;i<pieces.size();i++){
+            Piece piece = pieces.get(i);
             score += piece.getScore();
         }
 
@@ -416,6 +425,7 @@ public class Board {
             }
             output.append(".");
         }
+
 
         output.append("] (").append(String.format("%.1f", getScore(chess.getBlack()))).append(")");
 

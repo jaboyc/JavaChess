@@ -16,6 +16,7 @@ public abstract class Player {
 
     /**
      * Creates a new player.
+     *
      * @param isWhite whether the player is white or black.
      */
     public Player(boolean isWhite) {
@@ -24,15 +25,20 @@ public abstract class Player {
 
     /**
      * Returns a list of moves that are possible for the player.
-     * @param board the board to use.
+     *
+     * @param board         the board to use.
      * @param checkForCheck whether to consider placing the king in check.
      * @return the list of moves.
      */
-    public ArrayList<Move> getPossibleMoves(Board board, boolean checkForCheck){
+    public ArrayList<Move> getPossibleMoves(Board board, boolean checkForCheck) {
         ArrayList<Move> possibleMoves = new ArrayList<>();
-        for(Piece piece : board.getPieces(this)){
+
+        List<Piece> pieces = board.getPieces(this); // Store list beforehand to prevent ConcurrentModificationException.
+        for (int i = 0; i < pieces.size(); i++) {
+            Piece piece = pieces.get(i);
             possibleMoves.addAll(piece.getPossibleMoves(checkForCheck));
         }
+
         return possibleMoves;
     }
 
@@ -46,6 +52,7 @@ public abstract class Player {
 
     /**
      * The move the player will do to the board.
+     *
      * @param board the board to do the move on.
      */
     public abstract void move(Board board);
@@ -53,9 +60,9 @@ public abstract class Player {
     /**
      * @return the king piece from the player. Null if not found.
      */
-    public Piece getKing(Board board){
-        for(Piece piece : board.getPieces(this)){
-            if(piece.getInitial().equals("K")){
+    public Piece getKing(Board board) {
+        for (Piece piece : board.getPieces(this)) {
+            if (piece.getInitial().equals("K")) {
                 return piece;
             }
         }
@@ -64,10 +71,11 @@ public abstract class Player {
 
     /**
      * Gets the score of the current player in the given board.
+     *
      * @param board the board to use.
      * @return the score as a number.
      */
-    public double getScore(Board board){
+    public double getScore(Board board) {
         return board.getScore(this) - board.getScore(board.getEnemy(this));
     }
 

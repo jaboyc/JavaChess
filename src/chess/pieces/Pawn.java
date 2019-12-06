@@ -83,8 +83,10 @@ public class Pawn extends Piece {
     public void onMove(Board board, Move move) {
         super.onMove(board, move);
 
-        // If we hit the edge of the screen, upgrade to queen.
+        // If we hit the edge of the screen, promote to queen.
         if (getForward(1) == null) {
+            move.setPromotedPawn(this);
+
             board.removePiece(move.getDestination());
             board.addPiece(new Queen(board, isWhite(), move.getDestination()));
         }

@@ -14,7 +14,7 @@ public class CPU extends Player {
 
     private static final boolean DEBUG = true;
 
-    private static final int COMPLEXITY = 3; // The number of its turns it looks ahead in the future to decide its next move.
+    private static final int COMPLEXITY = 2; // The number of its turns it looks ahead in the future to decide its next move.
 
     public CPU(boolean isWhite) {
         super(isWhite);
