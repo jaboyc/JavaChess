@@ -14,6 +14,30 @@ public class King extends Piece {
 
     private static final double KING_CASTLE_BONUS = 0.5f; // Bonus points for the king not moving.
 
+    // King's piece square table for early/mid game.
+    public static final double[][] PIECE_SQUARE_TABLE_MID_GAME = {
+            {-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3},
+            {-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3},
+            {-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3},
+            {-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3},
+            {-0.2, -0.3, -0.3, -0.4, -0.4, -0.3, -0.3, -0.2},
+            {-0.1, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.1},
+            {0.2, 0.2, 0, 0, 0, 0, 0.2, 0.2},
+            {0.2, 0.3, 0.1, 0, 0, 0.1, 0.3, 0.2},
+    };
+
+    // King's piece square table for end game.
+    public static final double[][] PIECE_SQUARE_TABLE_END_GAME = {
+            {-0.5, -0.4, -0.3, -0.2, -0.2, -0.3, -0.4, -0.5},
+            {-0.3, -0.2, -0.1, 0, 0, -0.1, -0.2, -0.3},
+            {-0.3, -0.1, 0.2, 0.3, 0.3, 0.2, -0.1, -0.3},
+            {-0.3, -0.1, 0.3, 0.4, 0.4, 0.3, -0.1, -0.3},
+            {-0.3, -0.1, 0.3, 0.4, 0.4, 0.3, -0.1, -0.3},
+            {-0.3, -0.1, 0.2, 0.3, 0.3, 0.2, -0.1, -0.3},
+            {-0.3, -0.3, 0, 0, 0, 0, -0.3, -0.3},
+            {-0.5, -0.3, -0.3, -0.3, -0.3, -0.3, -0.3, -0.5},
+    };
+
     /**
      * Creates a King.
      *
@@ -46,7 +70,7 @@ public class King extends Piece {
             Tile tile = getOffset(stepsX[i], stepsY[i]);
             if (isEmpty(tile)) {
                 moves.add(move(tile));
-            } else if(containsEnemyPiece(tile)){
+            } else if (containsEnemyPiece(tile)) {
                 moves.add(0, capture(tile));
             }
         }
@@ -79,6 +103,8 @@ public class King extends Piece {
 //            bonus += KING_CASTLE_BONUS;
 //        if (getMoves() == 0 && canCastleLeft(board))
 //            bonus += KING_CASTLE_BONUS;
+
+        bonus += getPieceSquareTableScore(PIECE_SQUARE_TABLE_MID_GAME);
 
         return bonus;
     }

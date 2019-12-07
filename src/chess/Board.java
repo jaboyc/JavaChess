@@ -410,7 +410,7 @@ public class Board {
         // Add scores
         output.append("(").append(String.format("%.1f", getScore(chess.getWhite()))).append(") [");
 
-        int pointsCount = Math.max((int) (getScore(chess.getWhite())/(getScore(chess.getWhite()) + getScore(chess.getBlack())) * 20), 0);
+        int pointsCount = Math.min(Math.max((int) (getScore(chess.getWhite())/(getScore(chess.getWhite()) + getScore(chess.getBlack())) * 20), 0), 20);
         for(int i=0;i<pointsCount;i++){
             if(i == 10){
                 output.append("|");

@@ -12,7 +12,17 @@ import java.util.List;
  */
 public class Pawn extends Piece {
 
-    public static final double UP_VALUE = 0.07; // Multiplier for how far forward the piece is.
+    // Pawn's piece square table.
+    public static final double[][] PIECE_SQUARE_TABLE = {
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5},
+            {0.1, 0.1, 0.2, 0.3, 0.3, 0.2, 0.1, 0.1},
+            {0.05, 0.05, 0.1, 0.25, 0.25, 0.1, 0.05, 0.05},
+            {0, 0, 0, 0.2, 0.2, 0, 0, 0},
+            {0.05, -0.05, -0.1, 0, 0, -0.1, -0.05, 0.05},
+            {0.05, 0.1, 0.1, -0.2, -0.2, 0.1, 0.1, 0.05},
+            {0, 0, 0, 0, 0, 0, 0, 0},
+    };
 
     /**
      * Creates a Pawn.
@@ -50,10 +60,10 @@ public class Pawn extends Piece {
 
         // Check the diagonals for attacking.
         if (containsEnemyPiece(getNEDiagonal(1))) {
-            moves.add(0,capture(getNEDiagonal(1)));
+            moves.add(0, capture(getNEDiagonal(1)));
         }
         if (containsEnemyPiece(getNWDiagonal(1))) {
-            moves.add(0,capture(getNWDiagonal(1)));
+            moves.add(0, capture(getNWDiagonal(1)));
         }
 
         return moves;
@@ -62,6 +72,8 @@ public class Pawn extends Piece {
     @Override
     protected double getBonusScore(Board board) {
         double bonus = 0;
+
+         bonus += getPieceSquareTableScore(PIECE_SQUARE_TABLE);
 
         return bonus;
     }

@@ -12,6 +12,18 @@ import java.util.List;
  */
 public class Queen extends Piece {
 
+    // Queen's piece square table.
+    public static final double[][] PIECE_SQUARE_TABLE = {
+            {-0.2, -0.1, -0.1, -0.05, -0.05, -0.1, -0.1, -0.2},
+            {-0.1, 0, 0, 0, 0, 0, 0, -0.1},
+            {-0.1, 0, 0.05, 0.05, 0.05, 0.05, 0, -0.1},
+            {-0.05, 0, 0.05, 0.05, 0.05, 0.05, 0, -0.05},
+            {0, 0, 0.05, 0.05, 0.05, 0.05, 0, -0.05},
+            {-0.1, 0.05, 0.05, 0.05, 0.05, 0.05, 0, -0.1},
+            {-0.1, 0, 0.05, 0, 0, 0, 0, -0.1},
+            {-0.2, -0.1, -0.1, -0.05, -0.05, -0.1, -0.1, -0.2},
+    };
+
     /**
      * Creates a Queen.
      *
@@ -29,7 +41,7 @@ public class Queen extends Piece {
 
     @Override
     public double getValue() {
-        return 8;
+        return 9;
     }
 
     @Override
@@ -127,5 +139,14 @@ public class Queen extends Piece {
         }
 
         return moves;
+    }
+
+    @Override
+    protected double getBonusScore(Board board) {
+        double bonus = 0;
+
+        bonus += getPieceSquareTableScore(PIECE_SQUARE_TABLE);
+
+        return bonus;
     }
 }

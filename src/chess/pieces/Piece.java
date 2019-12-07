@@ -12,11 +12,6 @@ import java.util.List;
  */
 public abstract class Piece {
 
-    public static final double MOVE_VALUE = 0.04; // Multiplier for the value of a piece for the ability to move.
-    public static final double PROTECT_VALUE = 0.2; // Multiplier for the value of a piece when protecting it.
-    public static final double ACTIVATE_VALUE = 0.12; // Bonus for just activating a piece.
-    public static final double ATTACK_VALUE = 0.2; // Bonus for attacking a piece.
-
     private Tile tile; // The tile this piece is on.
     private boolean isWhite; // Whether this piece is white or black.
     private int moves; // The number of moves this piece has done throughout the game.
@@ -67,7 +62,7 @@ public abstract class Piece {
      */
     public List<Move> getPossibleMoves(boolean checkForCheck) {
 
-//        if(checkForCheck && possibleMoves != null) return possibleMoves;
+        if(checkForCheck && possibleMoves != null) return possibleMoves;
 
         ArrayList<Move> output = new ArrayList<>();
         for (Move move: getPossibleLocations()) {
@@ -142,20 +137,6 @@ public abstract class Piece {
 
         double score = getValue();
 
-        for (Move move : getPossibleMoves(true)) {
-            if (isEmpty(move.getDestination()) || containsEnemyPiece(move.getDestination())) {
-                score += MOVE_VALUE;
-            } else if (containsAllyPiece(move.getDestination())) {
-                score += PROTECT_VALUE;
-            }else if(containsEnemyPiece(move.getDestination())){
-                score += ATTACK_VALUE;
-            }
-        }
-
-        if(getMoves() >= 1 && (getInitial().equals("R") || getInitial().equals("B") || getInitial().equals("N") || getInitial().equals("P"))){
-            score += ACTIVATE_VALUE;
-        }
-
         score += getBonusScore(board);
 
         return score;
@@ -168,6 +149,19 @@ public abstract class Piece {
      */
     protected double getBonusScore(Board board) {
         return 0;
+    }
+
+    /**
+     * Returns the score associated with the piece table. It accounts for blacks being inverted.
+     * @param pieceTable the piece table to use.
+     * @return the points.
+     */
+    protected double getPieceSquareTableScore(double[][] pieceTable){
+        if(isWhite){
+            return pieceTable[8-tile.getY()][tile.getX()-1];
+        }else{
+            return pieceTable[tile.getY()-1][8-tile.getX()];
+        }
     }
 
     /**

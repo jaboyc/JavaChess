@@ -12,6 +12,18 @@ import java.util.List;
  */
 public class Rook extends Piece {
 
+    // Rook's piece square table.
+    public static final double[][] PIECE_SQUARE_TABLE = {
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0.05, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.05},
+            {-0.05, 0, 0, 0, 0, 0, 0, -0.05},
+            {-0.05, 0, 0, 0, 0, 0, 0, -0.05},
+            {-0.05, 0, 0, 0, 0, 0, 0, -0.05},
+            {-0.05, 0, 0, 0, 0, 0, 0, -0.05},
+            {-0.05, 0, 0, 0, 0, 0, 0, -0.05},
+            {0, 0, 0, 0.05, 0.05, 0, 0, 0},
+    };
+
     /**
      * Creates a Rook.
      *
@@ -86,5 +98,14 @@ public class Rook extends Piece {
         }
 
         return moves;
+    }
+
+    @Override
+    protected double getBonusScore(Board board) {
+        double bonus = 0;
+
+        bonus += getPieceSquareTableScore(PIECE_SQUARE_TABLE);
+
+        return bonus;
     }
 }
