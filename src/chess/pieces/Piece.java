@@ -12,6 +12,8 @@ import java.util.List;
  */
 public abstract class Piece {
 
+    public static final double MOBILITY_MULTIPLIER = 0.05; // Multiplier for the mobility of the piece.
+
     private Tile tile; // The tile this piece is on.
     private boolean isWhite; // Whether this piece is white or black.
     private int moves; // The number of moves this piece has done throughout the game.
@@ -136,6 +138,8 @@ public abstract class Piece {
     public double getScore() {
 
         double score = getValue();
+
+        score += getMobility(false) * MOBILITY_MULTIPLIER;
 
         score += getBonusScore(board);
 
@@ -334,6 +338,15 @@ public abstract class Piece {
      */
     public boolean hasMoved() {
         return moves > 0;
+    }
+
+    /**
+     * Returns the number of moves this piece can go to.
+     * @param checkForCheck whether to check for check in its possible moves.
+     * @return the mobility of the piece.
+     */
+    private int getMobility(boolean checkForCheck){
+        return getPossibleMoves(checkForCheck).size();
     }
 
     /**

@@ -14,7 +14,7 @@ public class CPU extends Player {
 
     private static final boolean DEBUG = true;
 
-    private static final int COMPLEXITY = 4; // The number of its turns it looks ahead in the future to decide its next move.
+    private static final int COMPLEXITY = 5; // The number of its turns it looks ahead in the future to decide its next move.
 
     public CPU(boolean isWhite) {
         super(isWhite);
@@ -63,7 +63,8 @@ public class CPU extends Player {
             for (Move move : possibleMoves) {
                 board.movePiece(move, false);
 
-                double depth = (move.isCapture() || board.inCheck(board.getEnemy(curr))) ? layersLeft - 0.5 : layersLeft - 1;
+//                double depth = (move.isCapture() || board.inCheck(board.getEnemy(curr))) ? layersLeft - 0.5 : layersLeft - 1;
+                double depth = layersLeft - 1;
 
                 Pair<Move, Double> result = calculate(board, board.getEnemy(curr), depth, rootMove == null ? move : rootMove, alpha, beta);
                 bestMove = bestMove.getSecond() > result.getSecond() ? bestMove : result;
@@ -87,7 +88,8 @@ public class CPU extends Player {
             for (Move move : possibleMoves) {
                 board.movePiece(move, false);
 
-                double depth = (move.isCapture() || board.inCheck(board.getEnemy(curr))) ? layersLeft - 0.5 : layersLeft - 1;
+//                double depth = (move.isCapture() || board.inCheck(board.getEnemy(curr))) ? layersLeft - 0.5 : layersLeft - 1;
+                double depth = layersLeft - 1;
 
                 Pair<Move, Double> result = calculate(board, board.getEnemy(curr), depth, rootMove == null ? move : rootMove, alpha, beta);
                 worstMove = worstMove.getSecond() < result.getSecond() ? worstMove : result;
